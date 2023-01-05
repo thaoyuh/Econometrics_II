@@ -1,0 +1,121 @@
+---
+title: "Assignment 1"
+author: "David Gyaraki, Thao Le"
+format: pdf
+pdf:
+  documentclass: article
+  cite-method: biblatex
+editor: visual
+include-in-header:
+  text: |
+    \addtokomafont{disposition}{\rmfamily}
+    \usepackage{amsmath}
+    \newcommand{\bm}{\symbf}
+    \newcommand{\T}{\text{T}}
+    \newcommand{\pl}{\text{plim}}
+    \usepackage{fancyvrb}
+pdf-engine: xelatex
+cap-location: top
+toc: true
+toc-title: Contents
+number-sections: true
+mainfont: Helvetica
+setspace:
+  linestretch: 1.25
+fig-align: center
+table-align: center
+fig-pos: H
+table-pos: H
+execute:
+  echo: true
+  warning: false
+  eval: true
+code-line-numbers: false
+colorlinks: true
+code-block-bg: darkgray
+df-print: default
+highlight-style: arrow-dark
+biblio-title: References
+---
+
+\clearpage
+
+```{r setup}
+# load packages
+if(!require(pacman)){install.packages("pacman")}
+
+p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,cowplot,tseries,sampleSelection)
+
+#load data
+dfData = read.csv("assignment1_2023.csv")
+attach(dfData) 
+```
+\section{Question 1}
+\subsection{(i)}
+```{r}
+lm_model = lm(logwage ~ age + agesq + schooling, data = dfData)
+summary(lm_model)
+```
+\subsection{(ii)}
+
+The sample selection problem here is to choose observations of the non-employed, which are those who have no income. The selection equation is then:
+\begin{equation*}
+    I_i = 
+    \begin{cases}
+    1 \text{ if logwage} > 0\\
+    0 \text{ otherwise},
+    \end{cases} 
+\end{equation*}
+and the second regression equation is:
+\begin{equation*}
+    Y_i^* = \bm{X_i'}\bm{\beta} + U_i.
+\end{equation*}
+We select a sample consisting of:
+\begin{equation*}
+    Y_i = 
+    \begin{cases}
+    Y_i^* \text{ if } I_i = 1\\
+    \text{missing} \text{ if } I_i = 0,
+    \end{cases} 
+\end{equation*}
+
+An OLS may fail in this context because the dependent variable (logwage) is missing for the non-employed sample, thus, it is not possible to derive an estimate of this variable for the non-employed
+\subsection{(iii)}
+The exclusion restriction variable is one that is included in $\bm{Z_i}$ but excluded from $\bm{X_i}$, I would choose 'married' as a suitable candidate for the sample selection model. My motivation is that married people tends to have stable income, and thus, employed.
+``` {r Heckman}
+# Create I variable:
+dfData = mutate(dfData, vI = if_else(logwage > 0, TRUE, FALSE)) 
+dfData["vI"][is.na(dfData["vI"])] <- FALSE
+
+# Heckman model with restriction
+heckman_rest = heckit( vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling, data = dfData)
+summary(heckman_rest)
+```
+```{r Heckman 2}
+# Heckman model without restriction
+heckman_unrest = heckit( vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling + married, data = dfData)
+summary(heckman_unrest)
+```
+
+- STILL NEED TO COMPARE OUTCOMES
+\subsection{(iv)}
+```{r ML}
+# Maximum likelihood estimator, restricted
+ML_rest = selection(vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling, data = dfData)
+summary(ML_rest)
+
+# Maximum likelihood estimator, unrestricted
+ML_unrest = selection(vI ~ married + age + agesq + schooling, logwage ~ age + agesq + schooling + married, data = dfData)
+summary(ML_unrest)
+
+```
+- STILL NEED TO COMPARE OUTCOMES
+\subsection{(v)}
+get fitted values => plot histogram
+```{r }
+fit1 <- fitted(heckman_rest)  
+hist(fit1)
+```
+The distribution is relatively normal?
+
+\section{Question 2}
