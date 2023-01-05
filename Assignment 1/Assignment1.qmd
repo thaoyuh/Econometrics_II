@@ -113,9 +113,43 @@ summary(ML_unrest)
 \subsection{(v)}
 get fitted values => plot histogram
 ```{r }
-fit1 <- fitted(heckman_rest)  
-hist(fit1)
+predicted_income <- fitted(ML_rest)  
+hist(predicted_income)
 ```
 The distribution is relatively normal?
 
 \section{Question 2}
+\subsection{(i)}
+```{r schooling}
+schooling_lm = lm(logwage ~ schooling, data = dfData)
+summary(schooling_lm)
+```
+The summary of the model shows that the F-statistics is not significance, thus, we cannot interpret the effect of schooling on employment.
+
+\subsection{(ii)}
+```{r }
+# Using distance as instrument variable
+model1 = lm(schooling ~ distance)
+X.hat.1 = fitted.values(model1)
+
+model2 =lm(logwage ~ X.hat.1)
+summary(model2)
+```
+```{r }
+# Using subsidy as instrument variable
+model3 = lm(schooling ~ subsidy)
+X.hat.3 = fitted.values(model3)
+
+model4 =lm(logwage ~ X.hat.3)
+summary(model4)
+```
+```{r }
+# Using subsidy and distance as instrument variable
+model5 = lm(schooling ~ subsidy+distance)
+X.hat.5 = fitted.values(model3)
+
+model6 =lm(logwage ~ X.hat.5)
+summary(model6)
+```
+\subsection{(iii)}
+I would use only subsidy as the instrument variable. 
