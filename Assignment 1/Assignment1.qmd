@@ -50,28 +50,27 @@ p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,cowplot,tseries,sampleSelectio
 dfData = read.csv("assignment1_2023.csv")
 attach(dfData) 
 ```
+
+```{=tex}
 \section{Question 1}
 \subsection{(i)}
+```
 ```{r}
 lm_model = lm(logwage ~ age + agesq + schooling, data = dfData)
 summary(lm_model)
 ```
+
 \subsection{(ii)}
 
-The sample selection problem here is to choose observations of the non-employed, which are those who have no income. The selection equation is then:
-\begin{equation*}
+The sample selection problem here is to choose observations of the non-employed, which are those who have no income. The selection equation is then: \begin{equation*}
     I_i = 
     \begin{cases}
     1 \text{ if logwage} > 0\\
     0 \text{ otherwise},
     \end{cases} 
-\end{equation*}
-and the second regression equation is:
-\begin{equation*}
+\end{equation*} and the second regression equation is: \begin{equation*}
     Y_i^* = \bm{X_i'}\bm{\beta} + U_i.
-\end{equation*}
-We select a sample consisting of:
-\begin{equation*}
+\end{equation*} We select a sample consisting of: \begin{equation*}
     Y_i = 
     \begin{cases}
     Y_i^* \text{ if } I_i = 1\\
@@ -80,9 +79,12 @@ We select a sample consisting of:
 \end{equation*}
 
 An OLS may fail in this context because the dependent variable (logwage) is missing for the non-employed sample, thus, it is not possible to derive an estimate of this variable for the non-employed
+
 \subsection{(iii)}
+
 The exclusion restriction variable is one that is included in $\bm{Z_i}$ but excluded from $\bm{X_i}$, I would choose 'married' as a suitable candidate for the sample selection model. My motivation is that married people tends to have stable income, and thus, employed.
-``` {r Heckman}
+
+```{r Heckman}
 # Create I variable:
 dfData = mutate(dfData, vI = if_else(logwage > 0, TRUE, FALSE)) 
 dfData["vI"][is.na(dfData["vI"])] <- FALSE
@@ -91,14 +93,17 @@ dfData["vI"][is.na(dfData["vI"])] <- FALSE
 heckman_rest = heckit( vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling, data = dfData)
 summary(heckman_rest)
 ```
+
 ```{r Heckman 2}
 # Heckman model without restriction
 heckman_unrest = heckit( vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling + married, data = dfData)
 summary(heckman_unrest)
 ```
 
-- STILL NEED TO COMPARE OUTCOMES
+-   STILL NEED TO COMPARE OUTCOMES
+
 \subsection{(iv)}
+
 ```{r ML}
 # Maximum likelihood estimator, restricted
 ML_rest = selection(vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling, data = dfData)
@@ -109,47 +114,69 @@ ML_unrest = selection(vI ~ married + age + agesq + schooling, logwage ~ age + ag
 summary(ML_unrest)
 
 ```
-- STILL NEED TO COMPARE OUTCOMES
+
+-   STILL NEED TO COMPARE OUTCOMES
+
 \subsection{(v)}
-get fitted values => plot histogram
+
+    get fitted values =\> plot histogram
+
 ```{r }
 predicted_income <- fitted(ML_rest)  
 hist(predicted_income)
 ```
-The distribution is relatively normal?
 
+The distribution is relatively normal, but a bit left-skewed
+
+```{=tex}
 \section{Question 2}
 \subsection{(i)}
-```{r schooling}
-schooling_lm = lm(logwage ~ schooling, data = dfData)
-summary(schooling_lm)
 ```
-The summary of the model shows that the F-statistics is not significance, thus, we cannot interpret the effect of schooling on employment.
+```{r schooling}
+# Get subsample of employed individuals
+dfEmployed = dfData[dfData$vI == TRUE, ]
+
+model0 = lm(logwage ~ schooling + age + agesq, data = dfEmployed)
+summary(model0)
+```
+
+Here we can talk about causation, but not association. The effect of schooling is statistically significant meaning ... is associated with ...
+
+NEED TO: address whether or not it is plausible that regularity conditions for applying OLS are satisfied.
+
 
 \subsection{(ii)}
+
 ```{r }
 # Using distance as instrument variable
 model1 = lm(schooling ~ distance)
 X.hat.1 = fitted.values(model1)
 
-model2 =lm(logwage ~ X.hat.1)
+# Fit Linear regression model again using the fitted values of first step
+model2 =lm(logwage ~ X.hat.1 + age + agesq)
 summary(model2)
 ```
+
 ```{r }
 # Using subsidy as instrument variable
 model3 = lm(schooling ~ subsidy)
 X.hat.3 = fitted.values(model3)
 
-model4 =lm(logwage ~ X.hat.3)
+# Fit Linear regression model again using the fitted values of first step
+
+model4 =lm(logwage ~ X.hat.3 + age + agesq)
 summary(model4)
 ```
+
 ```{r }
 # Using subsidy and distance as instrument variable
 model5 = lm(schooling ~ subsidy+distance)
 X.hat.5 = fitted.values(model3)
 
-model6 =lm(logwage ~ X.hat.5)
+model6 =lm(logwage ~ X.hat.5 + age + agesq)
 summary(model6)
 ```
+
 \subsection{(iii)}
-I would use only subsidy as the instrument variable. 
+
+I would use only subsidy as the instrument variable to avoid overidentification.
