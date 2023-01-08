@@ -59,7 +59,7 @@ attach(dfData)
 lm_model = lm(logwage ~ age + agesq + schooling, data = dfData)
 summary(lm_model)
 ```
-
+Looking at our OLS results, firstly, our F-statistic is significant, which means that there is an association between at least of one of the predictor variables and logwage. Thus, we can move on to interpret the coefficients. The adjusted R-square of 0.8135 means that $81.35%$ of the variance can be explained by the model. Looking at our OLS estimate, only the OLS estimate of schooling is significant. Thus, we can only interpret the effect of the variable schooling. There is an association between the years of schooling and the salary of a person. Holding other variables constant, a year of schooling is associated with around 0.2160 increase in log salary of an individual.
 \subsection{(ii)}
 
 The sample selection problem here is to choose observations of the non-employed, which are those who have no income. The selection equation is then: \begin{equation*}
@@ -96,11 +96,11 @@ summary(heckman_rest)
 
 ```{r Heckman 2}
 # Heckman model without restriction
-heckman_unrest = heckit( vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling + married, data = dfData)
+heckman_unrest = heckit( vI ~ married + age + agesq + schooling, logwage ~ age + agesq + schooling + married, data = dfData)
 summary(heckman_unrest)
 ```
 
--   STILL NEED TO COMPARE OUTCOMES
+Looking at the outcomes of the two model, we can see that the unrestricted model have a much higher standard error, this is because the unrestricted model run into the problem of multicollinearity (i.e., the Inverse Mill Ratio is almost perfectly colliniear to the rest of teh explanatory variables). Because of multicolinearity, the variable schooling is no longer statistically significant in the model. Thus, we are more unsure of our estimates.
 
 \subsection{(iv)}
 
@@ -115,18 +115,20 @@ summary(ML_unrest)
 
 ```
 
--   STILL NEED TO COMPARE OUTCOMES
+Similar to the situation in (iii), we can see that the unrestricted model have a much higher standard error, this is because the unrestricted model run into the problem of multicollinearity (i.e., the Inverse Mill Ratio is almost perfectly colliniear to the rest of teh explanatory variables). Because of multicolinearity, the variable schooling is no longer statistically significant in the model. Thus, we are unsure of our estimates.
 
 \subsection{(v)}
 
-    get fitted values =\> plot histogram
-
+To specify the distribution of potential earnings for the non-employed, we first get a subsample of the unemployed individuals. Then, we use one of the restricted models in (iii) or (iv) to predict potential income of the non-employ and draw a histogram.
 ```{r }
-predicted_income <- fitted(ML_rest)  
+# Get subsample of unemployed individuals
+dfUnEmployed = dfData[dfData$vI == FALSE, ]
+
+predicted_income = predict(ML_rest, newdata = dfUnEmployed)
 hist(predicted_income)
 ```
 
-The distribution is relatively normal, but a bit left-skewed
+The histogram does not give an apparent normal distribution. However, we can say that most predictions lies between 6 and 8, and the distribution is slightly left-skewed.
 
 ```{=tex}
 \section{Question 2}
@@ -140,43 +142,71 @@ model0 = lm(logwage ~ schooling + age + agesq, data = dfEmployed)
 summary(model0)
 ```
 
-Here we can talk about causation, but not association. The effect of schooling is statistically significant meaning ... is associated with ...
 
-NEED TO: address whether or not it is plausible that regularity conditions for applying OLS are satisfied.
+Looking at our OLS results, firstly, our F-statistic is significant, which means that there is an association between at least of one of the predictor variables and logwage. Thus, we can move on to interpret the coefficients. The OLS estimate of schooling is significant. Thus, we can only interpret the effect of the variable schooling. There is an \emph{association} between the years of schooling and the salary of a person. Holding other variables constant, a year of schooling is associated with around 0.2160 increase in log salary of an individual.
 
+However, we CANNOT discus the causal effect of schooling on income, because association is different from causation.
 
+Regarding whether it is plausible that regularity conditions for applying OLS are satisfied. We believe it is plausible that some conditions such as homoskedasticity, X non-random, the error terms are normally distributed and has mean zero, no-auto correlation are satisfied, the condition that model is linear is also satisfied. However we are not sure if there is any multicollinearity between the explanatory variable yet. For example, the distance to school and the regional subsidy for school expenses might be correlated with the years of schooling of an individual.
 \subsection{(ii)}
 
 ```{r }
 # Using distance as instrument variable
-model1 = lm(schooling ~ distance)
+model1 = lm(schooling ~ distance, data = dfEmployed)
 X.hat.1 = fitted.values(model1)
 
 # Fit Linear regression model again using the fitted values of first step
-model2 =lm(logwage ~ X.hat.1 + age + agesq)
+model2 =lm(logwage ~ X.hat.1 + age + agesq, data = dfEmployed)
 summary(model2)
 ```
 
 ```{r }
 # Using subsidy as instrument variable
-model3 = lm(schooling ~ subsidy)
+model3 = lm(schooling ~ subsidy , data = dfEmployed)
 X.hat.3 = fitted.values(model3)
 
 # Fit Linear regression model again using the fitted values of first step
 
-model4 =lm(logwage ~ X.hat.3 + age + agesq)
+model4 =lm(logwage ~ X.hat.3 + age + agesq , data = dfEmployed)
 summary(model4)
 ```
 
 ```{r }
 # Using subsidy and distance as instrument variable
-model5 = lm(schooling ~ subsidy+distance)
+model5 = lm(schooling ~ subsidy+distance, data = dfEmployed)
 X.hat.5 = fitted.values(model3)
 
-model6 =lm(logwage ~ X.hat.5 + age + agesq)
+model6 =lm(logwage ~ X.hat.5 + age + agesq, data = dfEmployed)
 summary(model6)
 ```
-
+After using 3 options of instrument variables, we can see that 'distance' is not a good instrument variables as the part of 'schooling' not explained by 'distance' (stored in 'X.hat.1') is not statistically significant in the linear model. On the other hand, after adding 'subsidy' as an instrument variable, the part of 'schooling' not correlated with 'subsidy' is statistically significant in explaining the changes in 'logwage'. We will only use 'subsidy' as the instrument variable, not a combination of both 'subsidy' and 'schooling', because using both variables can lead to the issue of over-identification.
 \subsection{(iii)}
 
-I would use only subsidy as the instrument variable to avoid overidentification.
+```{r}
+# OLS outcomes
+model0$coefficients
+```
+```{r}
+# IV outcomes
+model4$coefficients
+```
+Above are the OLS and IV estimates, in which, X.hat.3 in the IV estimates is the part of 'schooling' that is not correlated with subsidy. 
+
+Looking at the outcomes, we can see that the IV estimate of schooling coefficient is higher than the OLS estimate. This might be because the effect of subsidy on schooling is eliminated, making the number of years of schooling smaller, and thus it needs higher weights to predict the income. Both OLS and IV estimates yielded significant effect from the schooling variable.
+
+We would prefer OLS in the case where there is no correlation between explanatory variables and the error terms.
+
+To decide between OLS and IV, we first perform a t-test to check the relevance of the instrument (i.e., checking whether 'subsidy' and 'schooling' are correlated).
+
+```{r}
+summary(model3)
+```
+We can see that there is statistically sigfificant evidence that there is an association between 'subsidy' and 'schooling'. Thus, 'subsidy' is a relevant instruments. Moreover, we also need to check the validity of the instrument using the Sargan test:
+```{r}
+sargan_test = lm(model3$residuals ~ subsidy + age + agesq, data = dfEmployed)
+
+test_statistics <- summary(sargan_test)$r.squared*nrow(dfEmployed)
+
+print(1-pchisq(test_statistics,1))  # prints p-value
+```
+We can see that the p-value is 0.0167793, which is significant at $\alpha = 0.05$. This means that our instrument variable is valid. 
