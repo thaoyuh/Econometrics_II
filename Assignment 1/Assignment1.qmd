@@ -210,3 +210,5 @@ test_statistics <- summary(sargan_test)$r.squared*nrow(dfEmployed)
 print(1-pchisq(test_statistics,1))  # prints p-value
 ```
 We can see that the p-value is 0.0167793, which is significant at $\alpha = 0.05$. This means that our instrument variable is valid. 
+
+Using the result of both the t-test and the Sargan test, we choose to use the IV estimate instead of the OLS one as the IV estimate utilises a relevant and valid instrument variable.
