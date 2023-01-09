@@ -155,7 +155,7 @@ Looking at our OLS results, firstly, our F-statistic is significant, which means
 
 However, we CANNOT discus the causal effect of schooling on income, because association is different from causation.
 
-Regarding whether it is plausible that regularity conditions for applying OLS are satisfied. We believe it is plausible that some conditions such as homoskedasticity, X non-random, the error terms are normally distributed and has mean zero, no-auto correlation are satisfied, the condition that model is linear is also satisfied. However we are not sure if there is any multicollinearity between the explanatory variable yet. For example, the distance to school and the regional subsidy for school expenses might be correlated with the years of schooling of an individual.
+Regarding whether it is plausible that regularity conditions for applying OLS are satisfied. We believe it is plausible that some conditions such as homoskedasticity, X non-random, the error terms are normally distributed and has mean zero, no-auto correlation are satisfied, the condition that model is linear is also satisfied. However we are not sure if there is any multicollinearity between the explanatory variables yet. For example, the distance to school and the regional subsidy for school expenses might be correlated with the years of schooling of an individual. Specifically, people who have more subsidy and shorter distance to school could spend more years in school.
 \subsection{(ii)}
 
 ```{r }
