@@ -44,7 +44,8 @@ biblio-title: References
 # load packages
 if(!require(pacman)){install.packages("pacman")}
 
-p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,cowplot,tseries,sampleSelection)
+p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
+       cowplot,tseries,sampleSelection)
 
 #load data
 dfData = read.csv("assignment1_2023.csv")
@@ -59,7 +60,7 @@ attach(dfData)
 lm_model = lm(logwage ~ age + agesq + schooling, data = dfData)
 summary(lm_model)
 ```
-Looking at our OLS results, firstly, our F-statistic is significant, which means that there is an association between at least of one of the predictor variables and logwage. Thus, we can move on to interpret the coefficients. The adjusted R-square of 0.8135 means that $81.35%$ of the variance can be explained by the model. Looking at our OLS estimate, only the OLS estimate of schooling is significant. Thus, we can only interpret the effect of the variable schooling. There is an association between the years of schooling and the salary of a person. Holding other variables constant, a year of schooling is associated with around 0.2160 increase in log salary of an individual.
+Looking at our OLS results, firstly, our F-statistic is significant, which means that there is an association between at least of one of the predictor variables and logwage. Thus, we can move on to interpret the coefficients. The adjusted R-square of 0.8135 means that $81.35\%$ of the variance in the dependent variable can be explained by the model. Looking at our OLS estimate, only the OLS estimate of schooling is significant. Thus, we can only interpret the effect of the variable schooling. There is an association between the years of schooling and the salary of a person. Holding other variables constant, a year of schooling is associated with around 0.2160 units increase in log salary of an individual.
 \subsection{(ii)}
 
 The sample selection problem here is to choose observations of the non-employed, which are those who have no income. The selection equation is then: \begin{equation*}
@@ -90,36 +91,43 @@ dfData = mutate(dfData, vI = if_else(logwage > 0, TRUE, FALSE))
 dfData["vI"][is.na(dfData["vI"])] <- FALSE
 
 # Heckman model with restriction
-heckman_rest = heckit( vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling, data = dfData)
+heckman_rest = heckit( vI ~ married+age + agesq + 
+                      schooling, logwage ~ age + agesq + 
+                      schooling, data = dfData)
 summary(heckman_rest)
 ```
 
 ```{r Heckman 2}
 # Heckman model without restriction
-heckman_unrest = heckit( vI ~ married + age + agesq + schooling, logwage ~ age + agesq + schooling + married, data = dfData)
+heckman_unrest = heckit( vI ~ married + age + agesq + 
+                           schooling, logwage ~ age + agesq 
+                         + schooling + married, data = dfData)
 summary(heckman_unrest)
 ```
 
-Looking at the outcomes of the two model, we can see that the unrestricted model have a much higher standard error, this is because the unrestricted model run into the problem of multicollinearity (i.e., the Inverse Mill Ratio is almost perfectly colliniear to the rest of teh explanatory variables). Because of multicolinearity, the variable schooling is no longer statistically significant in the model. Thus, we are more unsure of our estimates.
+Looking at the outcomes of the two model, we can see that the unrestricted model have a much higher standard error, this is because the unrestricted model run into the problem of multicollinearity (i.e., the Inverse Mill Ratio is almost perfectly colliniear to the rest of the explanatory variables). Because of multicolinearity, the variable schooling is no longer statistically significant in the model. Thus, we are more unsure of our estimates.
 
 \subsection{(iv)}
 
 ```{r ML}
 # Maximum likelihood estimator, restricted
-ML_rest = selection(vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling, data = dfData)
+ML_rest = selection(vI ~ married+age + agesq + schooling, 
+                    logwage ~ age + agesq + schooling, data = dfData)
 summary(ML_rest)
 
 # Maximum likelihood estimator, unrestricted
-ML_unrest = selection(vI ~ married + age + agesq + schooling, logwage ~ age + agesq + schooling + married, data = dfData)
+ML_unrest = selection(vI ~ married + age + agesq + schooling, 
+                      logwage ~ age + agesq + schooling + married, 
+                      data = dfData)
 summary(ML_unrest)
 
 ```
 
-Similar to the situation in (iii), we can see that the unrestricted model have a much higher standard error, this is because the unrestricted model run into the problem of multicollinearity (i.e., the Inverse Mill Ratio is almost perfectly colliniear to the rest of teh explanatory variables). Because of multicolinearity, the variable schooling is no longer statistically significant in the model. Thus, we are unsure of our estimates.
+Similar to the situation in (iii), we can see that the unrestricted model have a much higher standard error, this is because the unrestricted model run into the problem of multicollinearity (i.e., the Inverse Mill Ratio is almost perfectly colliniear to the rest of the explanatory variables). Because of in increase in standard errors, the variable schooling is no longer statistically significant in the model. Thus, we are unsure of our estimates.
 
 \subsection{(v)}
 
-To specify the distribution of potential earnings for the non-employed, we first get a subsample of the unemployed individuals. Then, we use one of the restricted models in (iii) or (iv) to predict potential income of the non-employ and draw a histogram.
+To specify the distribution of potential earnings for the non-employed, we first get a subsample of the unemployed individuals. Then, we use one of the restricted models in (iii) or (iv) to predict potential income of the non-employed and draw a histogram.
 ```{r }
 # Get subsample of unemployed individuals
 dfUnEmployed = dfData[dfData$vI == FALSE, ]
@@ -179,7 +187,7 @@ X.hat.5 = fitted.values(model3)
 model6 =lm(logwage ~ X.hat.5 + age + agesq, data = dfEmployed)
 summary(model6)
 ```
-After using 3 options of instrument variables, we can see that 'distance' is not a good instrument variables as the part of 'schooling' not explained by 'distance' (stored in 'X.hat.1') is not statistically significant in the linear model. On the other hand, after adding 'subsidy' as an instrument variable, the part of 'schooling' not correlated with 'subsidy' is statistically significant in explaining the changes in 'logwage'. We will only use 'subsidy' as the instrument variable, not a combination of both 'subsidy' and 'schooling', because using both variables can lead to the issue of over-identification.
+After using 3 options of instrument variables, we can see that 'distance' is not a good instrument variable as the part of 'schooling' not explained by 'distance' (stored in 'X.hat.1') is not statistically significant in the linear model. On the other hand, after adding 'subsidy' as an instrument variable, the part of 'schooling' not correlated with 'subsidy' is statistically significant in explaining the changes in 'logwage'. We will only use 'subsidy' as the instrument variable, not a combination of both 'subsidy' and 'schooling', because using both variables can lead to the issue of over-identification.
 \subsection{(iii)}
 
 ```{r}
@@ -201,7 +209,7 @@ To decide between OLS and IV, we first perform a t-test to check the relevance o
 ```{r}
 summary(model3)
 ```
-We can see that there is statistically sigfificant evidence that there is an association between 'subsidy' and 'schooling'. Thus, 'subsidy' is a relevant instruments. Moreover, we also need to check the validity of the instrument using the Sargan test:
+We can see that there is statistically sigfificant evidence that there is an association between 'subsidy' and 'schooling'. Thus, 'subsidy' is a relevant instrument. Moreover, we also need to check the validity of the instrument using the Sargan test:
 ```{r}
 sargan_test = lm(model3$residuals ~ subsidy + age + agesq, data = dfEmployed)
 
