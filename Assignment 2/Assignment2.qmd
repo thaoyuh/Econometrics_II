@@ -95,8 +95,7 @@ quant_reg = rq(lntotexp ~ . , tau = q, data = dfData)
 summary(quant_reg)
 ```
 
-Looking at the results, we observe different coefficients across the different quantiles. Quite expectedly, we have increasing intercept coefficients, however the interesting part is the different significance of the coefficients in the different quantile regressions.   When one looks at the OLS regression results, 
-
+Looking at the results, we observe different coefficients across the different quantiles. Quite expectedly, we have increasing intercept coefficients, however the interesting part is the different significance of the coefficients in the different quantile regressions. We observe that for the 0.1 quantile, the female and white dummies are insignificant, for the 0.25 and 0.5 quantiles only the female dummy is insignificant, for the 0.75, interestingly the white dummy is insignificant while the female dummy turns out to be significant, and for the 0.9 quantile, only the chronic illness variable seems to be strongly significant with the female dummy slightly (at 10\% level) significant too. These trends will lead to the conclusion that the different predictors likely have different dynamics across the groups of patients when ordered by medical expenditure. Being white significantly increases medical expenditure in the mid-groups but not in the tails of the expenditure distribution. Age and extra insurance are associated with significant increase in costs for low spending groups but not for the highest spenders, and gender comes into influence for the highest spenders only. Let us then look at the OLS results, coefficients and their significance levels.
 
 ```{r OLS_1ii}
 # OLS Regression
@@ -104,7 +103,10 @@ OLS_reg = lm(lntotexp ~ . , data = dfData)
 summary(OLS_reg)
 ```
 
+When one looks at the OLS regression results, the model shows that most variables are statistically significant for explaining the logarithm of medical expenditure, except for the female dummy variable. The variables \textit{age}, \textit{totchr} and \textit{suppins} all have positive effect on medical expenditure with less than 0.001 significance, and the variable \textit{white} has a positive effect as well on 5\% significance level. The interpretation of the coefficients can also be given as one unit increase in the independent variables (keeping all else equal) increases the medical expenditure by $(exp(\beta_k)-1) * 100)$ percentage. We can see below, that a year of age increase will result in an estimated 1.274\% increase in medical expenses. Similarly, being female reduces the expenses by -7.366\% (although this is only significant at 10\% level in the OLS model), being white is associated with 37.412\% increase in medical expenses, an additional chronic illness will increase expenditure by 56.091\% and having a supplementary private insurance will result in 29.280\% increase in medical expenses. 
 
+```{r OLS_coeff}
+(exp(OLS_reg$coefficients)-1)*100
+```
 
-
-
+\subsection{(iii)}
