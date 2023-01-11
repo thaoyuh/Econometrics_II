@@ -14,12 +14,19 @@ include-in-header:
     \newcommand{\T}{\text{T}}
     \newcommand{\pl}{\text{plim}}
     \usepackage{fancyvrb}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
 pdf-engine: xelatex
 cap-location: top
 toc: true
 toc-title: Contents
 number-sections: true
-mainfont: Helvetica
+mainfont: Arial
 setspace:
   linestretch: 1.25
 fig-align: center
@@ -44,8 +51,7 @@ biblio-title: References
 # load packages
 if(!require(pacman)){install.packages("pacman")}
 
-p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
-       cowplot,tseries,sampleSelection)
+p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,cowplot,tseries,sampleSelection)
 
 #load data
 dfData = read.csv("assignment1_2023.csv")
@@ -60,7 +66,9 @@ attach(dfData)
 lm_model = lm(logwage ~ age + agesq + schooling, data = dfData)
 summary(lm_model)
 ```
+
 Looking at our OLS results, firstly, our F-statistic is significant, which means that there is an association between at least of one of the predictor variables and logwage. Thus, we can move on to interpret the coefficients. The adjusted R-square of 0.8135 means that $81.35\%$ of the variance in the dependent variable can be explained by the model. Looking at our OLS estimate, only the OLS estimate of schooling is significant. Thus, we can only interpret the effect of the variable schooling. There is an association between the years of schooling and the salary of a person. Holding other variables constant, a year of schooling is associated with around 0.2160 units increase in log salary of an individual.
+
 \subsection{(ii)}
 
 The sample selection problem here is to choose observations of the non-employed, which are those who have no income. The selection equation is then: \begin{equation*}
@@ -91,17 +99,13 @@ dfData = mutate(dfData, vI = if_else(logwage > 0, TRUE, FALSE))
 dfData["vI"][is.na(dfData["vI"])] <- FALSE
 
 # Heckman model with restriction
-heckman_rest = heckit( vI ~ married+age + agesq + 
-                      schooling, logwage ~ age + agesq + 
-                      schooling, data = dfData)
+heckman_rest = heckit( vI ~ married+age + agesq + schooling, logwage ~ age + agesq + schooling, data = dfData)
 summary(heckman_rest)
 ```
 
 ```{r Heckman 2}
 # Heckman model without restriction
-heckman_unrest = heckit( vI ~ married + age + agesq + 
-                           schooling, logwage ~ age + agesq 
-                         + schooling + married, data = dfData)
+heckman_unrest = heckit( vI ~ married + age + agesq + schooling, logwage ~ age + agesq + schooling + married, data = dfData)
 summary(heckman_unrest)
 ```
 
@@ -128,6 +132,7 @@ Similar to the situation in (iii), we can see that the unrestricted model have a
 \subsection{(v)}
 
 To specify the distribution of potential earnings for the non-employed, we first get a subsample of the unemployed individuals. Then, we use one of the restricted models in (iii) or (iv) to predict potential income of the non-employed and draw a histogram.
+
 ```{r }
 # Get subsample of unemployed individuals
 dfUnEmployed = dfData[dfData$vI == FALSE, ]
@@ -150,12 +155,12 @@ model0 = lm(logwage ~ schooling + age + agesq, data = dfEmployed)
 summary(model0)
 ```
 
-
 Looking at our OLS results, firstly, our F-statistic is significant, which means that there is an association between at least of one of the predictor variables and logwage. Thus, we can move on to interpret the coefficients. The OLS estimate of schooling is significant. Thus, we can only interpret the effect of the variable schooling. There is an \emph{association} between the years of schooling and the salary of a person. Holding other variables constant, a year of schooling is associated with around 0.2160 increase in log salary of an individual.
 
 However, we CANNOT discus the causal effect of schooling on income, because association is different from causation.
 
 Regarding whether it is plausible that regularity conditions for applying OLS are satisfied. We believe it is plausible that some conditions such as homoskedasticity, X non-random, the error terms are normally distributed and has mean zero, no-auto correlation are satisfied, the condition that model is linear is also satisfied. However we are not sure if there is any multicollinearity between the explanatory variables yet. For example, the distance to school and the regional subsidy for school expenses might be correlated with the years of schooling of an individual. Specifically, people who have more subsidy and shorter distance to school could spend more years in school.
+
 \subsection{(ii)}
 
 ```{r }
@@ -187,18 +192,22 @@ X.hat.5 = fitted.values(model3)
 model6 =lm(logwage ~ X.hat.5 + age + agesq, data = dfEmployed)
 summary(model6)
 ```
+
 After using 3 options of instrument variables, we can see that 'distance' is not a good instrument variable as the part of 'schooling' not explained by 'distance' (stored in 'X.hat.1') is not statistically significant in the linear model. On the other hand, after adding 'subsidy' as an instrument variable, the part of 'schooling' not correlated with 'subsidy' is statistically significant in explaining the changes in 'logwage'. We will only use 'subsidy' as the instrument variable, not a combination of both 'subsidy' and 'schooling', because using both variables can lead to the issue of over-identification.
+
 \subsection{(iii)}
 
 ```{r}
 # OLS outcomes
 model0$coefficients
 ```
+
 ```{r}
 # IV outcomes
 model4$coefficients
 ```
-Above are the OLS and IV estimates, in which, X.hat.3 in the IV estimates is the part of 'schooling' that is not correlated with subsidy. 
+
+Above are the OLS and IV estimates, in which, X.hat.3 in the IV estimates is the part of 'schooling' that is not correlated with subsidy.
 
 Looking at the outcomes, we can see that the IV estimate of schooling coefficient is higher than the OLS estimate. This might be because the effect of subsidy on schooling is eliminated, making the number of years of schooling smaller, and thus it needs higher weights to predict the income. Both OLS and IV estimates yielded significant effect from the schooling variable.
 
@@ -209,7 +218,9 @@ To decide between OLS and IV, we first perform a t-test to check the relevance o
 ```{r}
 summary(model3)
 ```
+
 We can see that there is statistically sigfificant evidence that there is an association between 'subsidy' and 'schooling'. Thus, 'subsidy' is a relevant instrument. Moreover, we also need to check the validity of the instrument using the Sargan test:
+
 ```{r}
 sargan_test = lm(model3$residuals ~ subsidy + age + agesq, data = dfEmployed)
 
@@ -217,6 +228,7 @@ test_statistics <- summary(sargan_test)$r.squared*nrow(dfEmployed)
 
 print(1-pchisq(test_statistics,1))  # prints p-value
 ```
-We can see that the p-value is 0.0167793, which is significant at $\alpha = 0.05$. This means that our instrument variable is valid. 
+
+We can see that the p-value is 0.0167793, which is significant at $\alpha = 0.05$. This means that our instrument variable is valid.
 
 Using the result of both the t-test and the Sargan test, we choose to use the IV estimate instead of the OLS one as the IV estimate utilises a relevant and valid instrument variable.

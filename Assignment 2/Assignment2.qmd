@@ -14,12 +14,19 @@ include-in-header:
     \newcommand{\T}{\text{T}}
     \newcommand{\pl}{\text{plim}}
     \usepackage{fancyvrb}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
 pdf-engine: xelatex
 cap-location: top
 toc: true
 toc-title: Contents
 number-sections: true
-mainfont: Helvetica
+mainfont: Arial
 setspace:
   linestretch: 1.25
 fig-align: center
@@ -51,8 +58,12 @@ p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
 dfData = read.csv("assignment2a_2023.csv")
 attach(dfData)
 ```
+
+```{=tex}
 \section{Question 1}
 \subsection{(i)}
+```
+
 ```{r quantile plot}
 # Get the quantile values
 quant=quantile(lntotexp, seq(0.1, 0.9, by=.4))
@@ -68,11 +79,13 @@ xlab = "Sample Fraction",
 ylab = "Sample Quantile")
 abline(h=quant, col = c("dark green","red", "blue"))
 ```
-In the quantile plot, the median is indicated by the red line, the 10^{th} and 90^{th} quantile are indicated by the blue and green lines.
+
+In the quantile plot, the median is indicated by the red line, the 10$^{th}$ and 90$^{th}$ quantile are indicated by the blue and green lines.
 
 We can see from the distribution of log of total medical expenditure that there are few values from 0 to 4. Thus, the quantile plot increases quickly in this region. From 4 to 6, we see an increase frequencies of observations, thus, the quantile plot increases slower. The most rapid increase in the quantile plot is observed between 6 and 10, which makes sense because that is the region where most observations lie. After 10, there are less observations and the quantile plot increases rapidly again.
 
 Although the quantile plot increases rapidly in both regions from 0 to 4 and 10 to 12, we observed a much steeper increase from 0 to 4, thus, we can say that the distribution of log total medical expenditure is left-skewed. This is confirmed by looking at its histogram.
+
 \subsection{(ii)}
 
 ```{r quant_regression}
@@ -80,9 +93,18 @@ Although the quantile plot increases rapidly in both regions from 0 to 4 and 10 
 q= c(0.1,0.25,0.5,0.75,0.9)
 quant_reg = rq(lntotexp ~ . , tau = q, data = dfData)
 summary(quant_reg)
+```
 
+Looking at the results, we observe different coefficients across the different quantiles. Quite expectedly, we have increasing intercept coefficients, however the interesting part is the different significance of the coefficients in the different quantile regressions.   When one looks at the OLS regression results, 
+
+
+```{r OLS_1ii}
 # OLS Regression
 OLS_reg = lm(lntotexp ~ . , data = dfData)
 summary(OLS_reg)
 ```
+
+
+
+
 
