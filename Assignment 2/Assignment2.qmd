@@ -112,12 +112,17 @@ When one looks at the OLS regression results, the model shows that most variable
 
 ```{r all quantiles reg}
 # Quantile regression in increments of 0.05
-q_005 = seq(0.05, 1, length.out=20)
+q_005 = seq(0.05, 0.95, length.out=19)
 quant_reg_005 = rq(lntotexp ~ . , tau = q_005, data = dfData)
-summary(quant_reg_005,se = "iid")
+summary(quant_reg_005)
 ```
 
+```{r}
+quantile_coeffs <- as.data.frame(quant_reg_005[["coefficients"]])
+#print(predict.rq(quant_reg_005, interval = c("confidence")))
 
+plot.rqs(quant_reg_005, ols=TRUE)
+```
 
 ```{=tex}
 \section{Question 2}
