@@ -52,7 +52,7 @@ biblio-title: References
 if(!require(pacman)){install.packages("pacman")}
 
 p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
-       sampleSelection, quantreg)
+       sampleSelection, quantreg, plm)
 
 #load data
 dfData = read.csv("assignment2a_2023.csv")
@@ -129,14 +129,35 @@ plot(qr_summary, level= .95, ols= TRUE)
 When one takes the observation relative to the individual-level mean, we include the information present in all of the observations belonging to one panel group or time horizon. In this case, each observation's fitted value will consider information from the individual groups, thus controlling for group/time fixed effects.
 
 \section{Question 3}
+```{r load data}
+dfData2 = read.csv("assignment2b_2023.csv")
+attach(dfData2)
+```
 \subsection{(i)}
 
 ```{r}
+# Pooled OLS model including variable asvabc
+reg1 = plm(earnings ~  school + age + agesq  + ethblack + urban + regne + regnc + regw + regs + asvabc,
+           data = dfData2, index = c("id","time"), model="pooling")
 
-
-
-
+reg1$coefficients
 ```
+```{r}
+# Pooled OLS model without variable asvabc
+reg2 = plm(earnings ~ school + age + agesq + ethblack + urban + regne + regnc + regw + regs,
+           data = dfData2, index = c("id","time"), model="pooling")
+
+reg2$coefficients
+```
+
+$\beta_1$ is smaller when including the variable asvabc (index test score, constant over time for each indivudual). This means that when accounting for the individual effect, the effect of years of schooling is smaller? NEED TO FINISH
+
+\subsection{(ii)}
+
+
+
+
+
 
 
 
