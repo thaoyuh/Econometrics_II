@@ -67,17 +67,16 @@ attach(dfData)
 ```{r quantile plot}
 # Get the quantile values
 quant=quantile(lntotexp, seq(0.1, 0.9, by=.4))
+n = length(lntotexp)
 
 # Histogram of log of total medical expenditure
 hist(lntotexp)
 
 # Quantile plot of log of total medical expenditure
-n = length(lntotexp)
 plot((1:n - 1)/(n - 1), sort(lntotexp), type="l",
 main = "Quantiles for log of total medical expenditure",
 xlab = "Sample Fraction",
-ylab = "Sample Quantile")
-abline(h=quant, col = c("dark green","red", "blue"))
+ylab = "Sample Quantile") + abline(h=quant, col = c("dark green","red", "blue"))
 ```
 
 In the quantile plot, the median is indicated by the red line, the 10$^{th}$ and 90$^{th}$ quantile are indicated by the blue and green lines.
@@ -115,7 +114,7 @@ When one looks at the OLS regression results, the model shows that most variable
 # Quantile regression in increments of 0.05
 q_005 = seq(0.05, 1, length.out=20)
 quant_reg_005 = rq(lntotexp ~ . , tau = q_005, data = dfData)
-summary(quant_reg_005)
+summary(quant_reg_005,se = "iid")
 ```
 
 
