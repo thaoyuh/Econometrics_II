@@ -119,4 +119,13 @@ summary(quant_reg_005,se = "iid")
 
 
 
+```{=tex}
+\section{Question 2}
+\subsection{(i)}
+```
+
+When one takes the observation relative to the individual-level mean, we include the information present in all of the observations belonging to one panel group or time horizon. In this case, each observation's fitted value will consider information from the individual groups, thus controlling for group/time fixed effects.
+
+
+
 
