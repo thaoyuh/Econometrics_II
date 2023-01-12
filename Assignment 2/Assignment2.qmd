@@ -110,3 +110,14 @@ When one looks at the OLS regression results, the model shows that most variable
 ```
 
 \subsection{(iii)}
+
+```{r all quantiles reg}
+# Quantile regression in increments of 0.05
+q_005 = seq(0.05, 1, length.out=20)
+quant_reg_005 = rq(lntotexp ~ . , tau = q_005, data = dfData)
+summary(quant_reg_005)
+```
+
+
+
+
