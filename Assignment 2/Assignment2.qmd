@@ -114,16 +114,13 @@ When one looks at the OLS regression results, the model shows that most variable
 # Quantile regression in increments of 0.05
 q_005 = seq(0.05, 0.95, length.out=19)
 quant_reg_005 = rq(lntotexp ~ . , tau = q_005, data = dfData)
-summary(quant_reg_005)
+qr_summary=summary(quant_reg_005)
+qr_summary
 ```
 
 ```{r}
-quantile_coeffs <- as.data.frame(quant_reg_005[["coefficients"]])
-#print(predict.rq(quant_reg_005, interval = c("confidence")))
-
-plot.rqs(quant_reg_005, ols=TRUE)
+plot(qr_summary, level= .95, ols= TRUE)
 ```
-
 ```{=tex}
 \section{Question 2}
 \subsection{(i)}
@@ -131,6 +128,15 @@ plot.rqs(quant_reg_005, ols=TRUE)
 
 When one takes the observation relative to the individual-level mean, we include the information present in all of the observations belonging to one panel group or time horizon. In this case, each observation's fitted value will consider information from the individual groups, thus controlling for group/time fixed effects.
 
+\section{Question 3}
+\subsection{(i)}
+
+```{r}
+
+
+
+
+```
 
 
 
