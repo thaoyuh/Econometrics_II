@@ -168,13 +168,42 @@ reg2 = plm(earnings ~ school + age + agesq + ethblack + urban + regne + regnc + 
 reg2$coefficients
 ```
 
-$\beta_1$ is smaller when including the variable asvabc (index test score, constant over time for each indivudual). This means that when accounting for the individual effect, the effect of years of schooling is smaller? NEED TO FINISH
+$\beta_1$ is smaller when including the variable asvabc (index test score, constant over time for each individual). This means that when accounting for the individual effect, the effect of years of schooling is smaller? NEED TO FINISH
 
 \subsection{(ii)}
 
 
 
+\subsection{(iii)}
 
+
+
+\subsection{(iv)}
+
+This depends on whether the individual specific effects are correlated with the regressors. If the individual effects are correlated with the regressors, the fixed effects model makes more sense to be used since the random effects estimator will be inconsistent.
+
+\subsection{(v)}
+
+```{r fixedeff}
+# Fixed effects estimation of the heterogeneity of returns to schooling by racial groups
+
+reg3_5 <-  plm(earnings ~ school, data = dfData2, index = c("id","time"), model="within", effect = "individual")
+
+```
+
+\subsection{(vi)}
+
+
+
+\subsection{(vii)}
+
+
+
+\subsection{(viii)}
+
+
+
+\subsection{(ix)}
 
 
 
