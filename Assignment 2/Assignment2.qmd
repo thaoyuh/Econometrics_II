@@ -13,6 +13,10 @@ include-in-header:
     \newcommand{\bm}{\symbf}
     \newcommand{\T}{\text{T}}
     \newcommand{\pl}{\text{plim}}
+    \newcommand{\brefsection}[1]{Section \textcolor{blue}{\ref{#1}}}
+    \newcommand{\beqref}[1]{Equation \textcolor{blue}{\eqref{#1}}}
+    \newcommand{\breftable}[1]{Table \textcolor{blue}{\ref{#1}}}
+    \newcommand{\breffig}[1]{Figure \textcolor{blue}{\ref{#1}}}
     \usepackage{fancyvrb}
     \usepackage{fvextra}
     \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
@@ -47,7 +51,7 @@ biblio-title: References
 
 \clearpage
 
-```{r setup}
+```{r setup q1, echo=TRUE, results='hide'}
 # load packages
 if(!require(pacman)){install.packages("pacman")}
 
@@ -85,7 +89,7 @@ We can see from the distribution of log of total medical expenditure that there 
 
 Although the quantile plot increases rapidly in both regions from 0 to 4 and 10 to 12, we observed a much steeper increase from 0 to 4, thus, we can say that the distribution of log total medical expenditure is left-skewed. This is confirmed by looking at its histogram.
 
-\subsection{(ii)}
+\subsection{(ii)} \label{q1_2}
 
 ```{r quant_regression}
 # Quantile regression
@@ -110,6 +114,8 @@ When one looks at the OLS regression results, the model shows that most variable
 
 \subsection{(iii)}
 
+First we can re-estimate the quantile regressions from 0.05 to 0.95 in the same model as in \brefsection{q1_2}. 
+
 ```{r all quantiles reg}
 # Quantile regression in increments of 0.05
 q_005 = seq(0.05, 0.95, length.out=19)
@@ -118,18 +124,30 @@ qr_summary=summary(quant_reg_005)
 qr_summary
 ```
 
-```{r}
+Then we can plot the resulting quantile regression coefficient estimates along with their 95\% confidence intervals, and include the OLS linear regression estimates as well for a comparison. 
+
+```{r, fig.width=16, fig.height=12}
 plot(qr_summary, level= .95, ols= TRUE)
 ```
-```{=tex}
-\section{Question 2}
-\subsection{(i)}
-```
 
-When one takes the observation relative to the individual-level mean, we include the information present in all of the observations belonging to one panel group or time horizon. In this case, each observation's fitted value will consider information from the individual groups, thus controlling for group/time fixed effects.
+Finally, let's look at how the quantile regression coefficients compare to the OLS results and what their trend is. The graphs represent each coefficient estimate across quantiles (black dotted line) with their confidence intervals around them (shaded area). The OLS results are represented with the red continuous line along with the red dashed lines as the 95\% CI. It seems that most coefficients have a relatively visible trend across the quantiles. From the lowest to the highest 0.05 incremental quantiles in terms of medical expenditure, gender, chronic illness and private insurance tends to have a decreasing coefficient and sometimes significance too. The age and the white variables seem to not be too different from the OLS estimates across the quantiles, apart from a few groups. This is the same pattern as seen before, where age is significantly positive across the lower quantiles as OLS, but deviates from the OLS when the highest spending quantiles are reached and actually becomes statistically insignificant. Similarly for white, the variable is not significant for most of the quantiles due to increased variance, but more or less follows the OLS estimate and has a statistically significant coefficient for the middle quantiles. The strongest deviations from the OLS estimates across the quantiles are exhibited by the chronic illness and private insurance variables. The number of chronic illness is a strong positive predictor of increased medical expenditure across all quantiles, but seems especially relevant for lower spending groups and has a less enhanced effect for the higher spending groups. Private insurance exhibits a similar effect on medical spending, with the exception that while the OLS shows the variable to be significant, the quantile regression reveals that this is not the case for the highest spending groups, only applies for the lower quantiles.
+
+\section{Question 2}
+
+\subsection{(i)}
+
+When one takes the observation relative to the individual-level mean, we include the information present in all of the observations belonging to one panel group. In this case, each observation's fitted value will consider information from the individual groups, thus controlling for group fixed effects. 
+
+\subsection{(ii)}
+
+The idea between "controlling for individual effects" and simply adding a polynomial/linear term for the time variable and "controlling for individual and time effects" is that the first option controls for the individual effects and then includes the time dummy in the main regression model, while the second option considers the individual and time effects in a two-way model before including them in the main regression model. This can be especially helpful if the panel data is not balanced, i.e. some time periods have a lot more observations than others (or some periods are partially missing), and/or if the same applies to individual groups. In this case, one has to deal with this imbalance when using the first method, but if the data is not randomly missing (say one specific regressor quantile tends to be missing in the same period), or one does not want to deal with filling in the missing gaps, the two-way fixed effects control makes more sense as it deals with this imbalance in the individual effects estimation and not in the main model.
+
+\subsection{(iii)}
+
+Provided that the stronger assumptions of the random effects as compared to fixed effects hold, the random effects are better suited to estimate individual effects because the stochastic estimation of the individual effects. If the individual specific effects are uncorrelated to the regressors, the random effects estimator is consistent and more efficient than the fixed effects. However, if the individual effects are correlated to the regressors, the random effects is not consistent and it is better to use the fixed effects estimator which stays consistent in this scenario.
 
 \section{Question 3}
-```{r load data}
+```{r load data q3, echo=TRUE, results='hide'}
 dfData2 = read.csv("assignment2b_2023.csv")
 attach(dfData2)
 ```
