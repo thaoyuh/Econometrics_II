@@ -56,7 +56,7 @@ biblio-title: References
 if(!require(pacman)){install.packages("pacman")}
 
 p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
-       sampleSelection, quantreg, plm)
+       sampleSelection, quantreg, plm, nlme)
 
 #load data
 dfData = read.csv("assignment2a_2023.csv")
@@ -135,11 +135,9 @@ Finally, let's look at how the quantile regression coefficients compare to the O
 \section{Question 2}
 
 \subsection{(i)}
-
-When one takes the observation relative to the individual-level mean, we include the information present in all of the observations belonging to one panel group. In this case, each observation's fitted value will consider information from the individual groups, thus controlling for group fixed effects. 
+Each individual have a different mean, likely due to individual-specific effects.When one takes the observation relative to the individual-level mean, we exclude the individual-specific information present in all the observations belonging to one individual. In this case, each observation's fitted value will exclude the effect of individual factors on its value, thus controlling for the individual effects. 
 
 \subsection{(ii)}
-
 The idea between "controlling for individual effects" and simply adding a polynomial/linear term for the time variable and "controlling for individual and time effects" is that the first option controls for the individual effects and then includes the time dummy in the main regression model, while the second option considers the individual and time effects in a two-way model before including them in the main regression model. This can be especially helpful if the panel data is not balanced, i.e. some time periods have a lot more observations than others (or some periods are partially missing), and/or if the same applies to individual groups. In this case, one has to deal with this imbalance when using the first method, but if the data is not randomly missing (say one specific regressor quantile tends to be missing in the same period), or one does not want to deal with filling in the missing gaps, the two-way fixed effects control makes more sense as it deals with this imbalance in the individual effects estimation and not in the main model.
 
 \subsection{(iii)}
@@ -155,27 +153,43 @@ attach(dfData2)
 
 ```{r}
 # Pooled OLS model including variable asvabc
-reg1 = plm(earnings ~  school + age + agesq  + ethblack + urban + regne + regnc + regw + regs + asvabc,
+pool_reg1 = plm(earnings ~  school + age + agesq  + ethblack + urban + regne + regnc + regw + regs + asvabc,
            data = dfData2, index = c("id","time"), model="pooling")
-
-reg1$coefficients
+summary(pool_reg1)
+pool_reg1$coefficients
 ```
 ```{r}
 # Pooled OLS model without variable asvabc
-reg2 = plm(earnings ~ school + age + agesq + ethblack + urban + regne + regnc + regw + regs,
+pool_reg2 = plm(earnings ~ school + age + agesq + ethblack + urban + regne + regnc + regw + regs + asvabc,
            data = dfData2, index = c("id","time"), model="pooling")
-
-reg2$coefficients
+summary(pool_reg2)
+pool_reg2$coefficients
 ```
 
 $\beta_1$ is smaller when including the variable asvabc (index test score, constant over time for each individual). This means that when accounting for the individual effect, the effect of years of schooling is smaller? NEED TO FINISH
 
 \subsection{(ii)}
+First, we check if there is a difference in mean in variability of returns to schooling and earnings between two groups of black and non-black people. 
+```{r}
+par(mfrow=c(1,2))
+boxplot(dfData2$earnings, dfData2$ethblack, names=c(0,1), ylab="Earnings")
+boxplot(dfData2$school, dfData2$ethblack, names=c(0,1), ylab="Schooling")
 
+```
+The boxplots show that in the non-black group, the earnings and years of schooling are much higher on average than the black group. Thus, we hypothesize that
+
+```{r}
+pool_reg3 = plm(earnings ~ school*ethblack + school + ethblack + urban + regne + regnc + regw + asvabc, data = dfData2, index = c("id","time"), model="pooling")
+summary(pool_reg3)
+```
+According to the summary of the model, the cross term of 'school' and 'ethblack' is not significant. Thus, we cannot say that there is heterogeneity in schooling by ethnicity using pooled OLS regression.
 
 
 \subsection{(iii)}
-
+```{r}
+ran_reg =plm(earnings ~  school +  ethblack + school*ethblack + urban + regne + regnc + regw + asvabc, data = dfData2, index = c("id","time"), model="random", effect="twoways")
+summary(ran_reg)
+```
 
 
 \subsection{(iv)}
@@ -187,24 +201,64 @@ This depends on whether the individual specific effects are correlated with the 
 ```{r fixedeff}
 # Fixed effects estimation of the heterogeneity of returns to schooling by racial groups
 
-reg3_5 <-  plm(earnings ~ school, data = dfData2, index = c("id","time"), model="within", effect = "individual")
-
+fixed_reg <-  plm(earnings ~ school + ethblack + school*ethblack +age+agesq + urban + regne + regnc + regw + asvabc, data = dfData2, index = c("id","time"), model="within", effect = "individual")
+summary(fixed_reg)
 ```
 
 \subsection{(vi)}
-
-
+Null hypothesis: both $\hat{\beta}_{ran\_effect}$ and $\hat{\beta}_{fixed\_effect}$ are consistent but the former is more efficient.
+Alternative hypothesis: only $\hat{\beta}_{fixed\_effect}$ is consistent.
+```{r Hausman}
+# Perform Hausman test
+phtest(ran_reg, fixed_reg, data= dfData2)
+```
+Since the p-value is significant, we reject the null hypothesis and accept the null hypothesis that only the fixed effect estimator is consistent.
 
 \subsection{(vii)}
+```{r}
+# Get average group mean of schooling per individual by ethnicity
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_mean= mean(school))
 
+# Mundlak estimation
+Mundlak_reg <-  plm(earnings ~ group_mean+ school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc , data = dfData2, index = c("id","time"), model="pooling")
+summary(Mundlak_reg)
+```
+There is a statistically significant evidence that the coefficient of group_mean $\gamma$ is different than 0. Thus, the individual specific effects are correlated with the regressors and thus, we should use a fixed effect model.
 
+(here they said to use GLS? I used plm to estimate, Don't know if that's alright)
 
 \subsection{(viii)}
-
-
+- There is heterogeneity.
+- Fixed effect model is preferred over random effect because the individual specific effects are correlated with the regressors, we need to control for the individual effects.
 
 \subsection{(ix)}
+```{r}
+# Get frequency (number of waves) of each ID
+df_freq = as.data.frame(table(dfData2$id))
 
+# Filter out participants ID with frequency of less than 5
+df_freq = df_freq[(df_freq$Freq >5),]
+
+# Filter out participants with d=0 in the original dataset
+df_balanced = dfData2[dfData2$id %in% df_freq$Var1,]
+
+# Estimation on unbalanced panel
+unbalanced = plm(earnings ~ school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc, data = dfData2, index = c("id","time"), model="pooling")
+
+# Estimation on balanced panel
+balanced = plm(earnings ~ school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc, data = df_balanced, index = c("id","time"), model="pooling")
+
+# Verbeek and Nijman test
+phtest(balanced,unbalanced, data= dfData2)
+```
+
+The Verbeek and Nijman test use a Hausman type test on $\hat{\beta}_{balanced}-\hat{\beta}_{unbalanced}$
+
+The Null hypothesis is that there is no attrition bias, thus the unbalanced estimator is more efficient.
+
+The Alternative hypothesis is that there is attrition bias, thus, the balanced estimator is more efficient.
+
+In this case, we reject the null hypothesis and conclude that the balanced estimator is more efficient.
 
 
 
