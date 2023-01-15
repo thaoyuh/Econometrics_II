@@ -67,7 +67,6 @@ attach(dfData)
 \section{Question 1}
 \subsection{(i)}
 ```
-
 ```{r quantile plot}
 # Get the quantile values
 quant=quantile(lntotexp, seq(0.1, 0.9, by=.4))
@@ -98,7 +97,7 @@ quant_reg = rq(lntotexp ~ . , tau = q, data = dfData)
 summary(quant_reg)
 ```
 
-Looking at the results, we observe different coefficients across the different quantiles. Quite expectedly, we have increasing intercept coefficients, however the interesting part is the different significance of the coefficients in the different quantile regressions. We observe that for the 0.1 quantile, the female and white dummies are insignificant, for the 0.25 and 0.5 quantiles only the female dummy is insignificant, for the 0.75, interestingly the white dummy is insignificant while the female dummy turns out to be significant, and for the 0.9 quantile, only the chronic illness variable seems to be strongly significant with the female dummy slightly (at 10\% level) significant too. These trends will lead to the conclusion that the different predictors likely have different dynamics across the groups of patients when ordered by medical expenditure. Being white significantly increases medical expenditure in the mid-groups but not in the tails of the expenditure distribution. Age and extra insurance are associated with significant increase in costs for low spending groups but not for the highest spenders, and gender comes into influence for the highest spenders only. Let us then look at the OLS results, coefficients and their significance levels.
+Looking at the results, we observe different coefficients across the different quantiles. Quite expectedly, we have increasing intercept coefficients, however the interesting part is the different significance of the coefficients in the different quantile regressions. We observe that for the 0.1 quantile, the female and white dummies are insignificant, for the 0.25 and 0.5 quantiles only the female dummy is insignificant, for the 0.75, interestingly the white dummy is insignificant while the female dummy turns out to be significant, and for the 0.9 quantile, only the chronic illness variable seems to be strongly significant with the female dummy slightly (at 10% level) significant too. These trends will lead to the conclusion that the different predictors likely have different dynamics across the groups of patients when ordered by medical expenditure. Being white significantly increases medical expenditure in the mid-groups but not in the tails of the expenditure distribution. Age and extra insurance are associated with significant increase in costs for low spending groups but not for the highest spenders, and gender comes into influence for the highest spenders only. Let us then look at the OLS results, coefficients and their significance levels.
 
 ```{r OLS_1ii}
 # OLS Regression
@@ -106,7 +105,7 @@ OLS_reg = lm(lntotexp ~ . , data = dfData)
 summary(OLS_reg)
 ```
 
-When one looks at the OLS regression results, the model shows that most variables are statistically significant for explaining the logarithm of medical expenditure, except for the female dummy variable. The variables \textit{age}, \textit{totchr} and \textit{suppins} all have positive effect on medical expenditure with less than 0.001 significance, and the variable \textit{white} has a positive effect as well on 5\% significance level. The interpretation of the coefficients can also be given as one unit increase in the independent variables (keeping all else equal) increases the medical expenditure by $(exp(\beta_k)-1) * 100)$ percentage. We can see below, that a year of age increase will result in an estimated 1.274\% increase in medical expenses. Similarly, being female reduces the expenses by -7.366\% (although this is only significant at 10\% level in the OLS model), being white is associated with 37.412\% increase in medical expenses, an additional chronic illness will increase expenditure by 56.091\% and having a supplementary private insurance will result in 29.280\% increase in medical expenses. 
+When one looks at the OLS regression results, the model shows that most variables are statistically significant for explaining the logarithm of medical expenditure, except for the female dummy variable. The variables \textit{age}, \textit{totchr} and \textit{suppins} all have positive effect on medical expenditure with less than 0.001 significance, and the variable \textit{white} has a positive effect as well on 5% significance level. The interpretation of the coefficients can also be given as one unit increase in the independent variables (keeping all else equal) increases the medical expenditure by $(exp(\beta_k)-1) * 100)$ percentage. We can see below, that a year of age increase will result in an estimated 1.274% increase in medical expenses. Similarly, being female reduces the expenses by -7.366% (although this is only significant at 10% level in the OLS model), being white is associated with 37.412% increase in medical expenses, an additional chronic illness will increase expenditure by 56.091% and having a supplementary private insurance will result in 29.280% increase in medical expenses.
 
 ```{r OLS_coeff}
 (exp(OLS_reg$coefficients)-1)*100
@@ -114,7 +113,7 @@ When one looks at the OLS regression results, the model shows that most variable
 
 \subsection{(iii)}
 
-First we can re-estimate the quantile regressions from 0.05 to 0.95 in the same model as in \brefsection{q1_2}. 
+First we can re-estimate the quantile regressions from 0.05 to 0.95 in the same model as in \brefsection{q1_2}.
 
 ```{r all quantiles reg}
 # Quantile regression in increments of 0.05
@@ -124,114 +123,152 @@ qr_summary=summary(quant_reg_005)
 qr_summary
 ```
 
-Then we can plot the resulting quantile regression coefficient estimates along with their 95\% confidence intervals, and include the OLS linear regression estimates as well for a comparison. 
+Then we can plot the resulting quantile regression coefficient estimates along with their 95% confidence intervals, and include the OLS linear regression estimates as well for a comparison.
 
 ```{r, fig.width=16, fig.height=12}
 plot(qr_summary, level= .95, ols= TRUE)
 ```
 
-Finally, let's look at how the quantile regression coefficients compare to the OLS results and what their trend is. The graphs represent each coefficient estimate across quantiles (black dotted line) with their confidence intervals around them (shaded area). The OLS results are represented with the red continuous line along with the red dashed lines as the 95\% CI. It seems that most coefficients have a relatively visible trend across the quantiles. From the lowest to the highest 0.05 incremental quantiles in terms of medical expenditure, gender, chronic illness and private insurance tends to have a decreasing coefficient and sometimes significance too. The age and the white variables seem to not be too different from the OLS estimates across the quantiles, apart from a few groups. This is the same pattern as seen before, where age is significantly positive across the lower quantiles as OLS, but deviates from the OLS when the highest spending quantiles are reached and actually becomes statistically insignificant. Similarly for white, the variable is not significant for most of the quantiles due to increased variance, but more or less follows the OLS estimate and has a statistically significant coefficient for the middle quantiles. The strongest deviations from the OLS estimates across the quantiles are exhibited by the chronic illness and private insurance variables. The number of chronic illness is a strong positive predictor of increased medical expenditure across all quantiles, but seems especially relevant for lower spending groups and has a less enhanced effect for the higher spending groups. Private insurance exhibits a similar effect on medical spending, with the exception that while the OLS shows the variable to be significant, the quantile regression reveals that this is not the case for the highest spending groups, only applies for the lower quantiles.
+Finally, let's look at how the quantile regression coefficients compare to the OLS results and what their trend is. The graphs represent each coefficient estimate across quantiles (black dotted line) with their confidence intervals around them (shaded area). The OLS results are represented with the red continuous line along with the red dashed lines as the 95% CI. It seems that most coefficients have a relatively visible trend across the quantiles. From the lowest to the highest 0.05 incremental quantiles in terms of medical expenditure, gender, chronic illness and private insurance tends to have a decreasing coefficient and sometimes significance too. The age and the white variables seem to not be too different from the OLS estimates across the quantiles, apart from a few groups. This is the same pattern as seen before, where age is significantly positive across the lower quantiles as OLS, but deviates from the OLS when the highest spending quantiles are reached and actually becomes statistically insignificant. Similarly for white, the variable is not significant for most of the quantiles due to increased variance, but more or less follows the OLS estimate and has a statistically significant coefficient for the middle quantiles. The strongest deviations from the OLS estimates across the quantiles are exhibited by the chronic illness and private insurance variables. The number of chronic illness is a strong positive predictor of increased medical expenditure across all quantiles, but seems especially relevant for lower spending groups and has a less enhanced effect for the higher spending groups. Private insurance exhibits a similar effect on medical spending, with the exception that while the OLS shows the variable to be significant, the quantile regression reveals that this is not the case for the highest spending groups, only applies for the lower quantiles.
 
 \section{Question 2}
 
 \subsection{(i)}
-Each individual have a different mean, likely due to individual-specific effects.When one takes the observation relative to the individual-level mean, we exclude the individual-specific information present in all the observations belonging to one individual. In this case, each observation's fitted value will exclude the effect of individual factors on its value, thus controlling for the individual effects. 
+
+Each individual has a different mean, likely due to individual-specific effects. When one takes the observation relative to the individual-level mean, we exclude the individual-specific information present in all the observations belonging to one individual. In this case, each observation's fitted value will exclude the effect of individual factors on its value, thus controlling for the individual effects.
 
 \subsection{(ii)}
-The idea between (1) "controlling for individual effects" and simply adding a polynomial/linear term for the time variable and (2) "controlling for individual and time effects" is that the first option controls for the individual effects and then includes the time dummy in the main regression model, while the second option considers the individual and time effects in a two-way model before including them in the main regression model. This can be especially helpful if the panel data is not balanced, i.e. some time periods have a lot more observations than others (or some periods are partially missing), and/or if the same applies to individual groups. In this case, one has to deal with this imbalance when using the first method, but if the data is not randomly missing (say one specific regressor quantile tends to be missing in the same period), or one does not want to deal with filling in the missing gaps, the two-way fixed effects control makes more sense as it deals with this imbalance in the individual effects estimation and not in the main model.
+
+The idea between (1) "controlling for individual effects" and simply adding a polynomial/linear term for the time variable and (2) "controlling for individual and time effects" is that the first option controls for the individual effects and then includes the time dummy in the main regression model, while the second option considers the individual and time effects in a two-way model before including them in the main regression model. This latter can be especially helpful if the panel data is not balanced, i.e. some time periods have a lot more observations than others (or some periods are partially missing), and/or if the same applies to individual groups. In this case, one has to deal with this imbalance when using the first method, but if the data is not randomly missing (say one specific regressor quantile tends to be missing in the same period), or one does not want to deal with filling in the missing gaps, the two-way fixed effects control makes more sense as it deals with this imbalance in the individual effects estimation and not in the main model. Furthermore, using simple individual effects and then adding a time dummy variable in the model can be problematic if the regressors exhibit a time-trend, in which case the time dummy will introduce multicollinearity to the model. In this case, it is better to include the time variable in the estimation of the individual effects term, since the two-way option will eliminate the risk of multicollinearity among regressors (however this will still require fixed effects estimation).
 
 \subsection{(iii)}
 
-Provided that the stronger assumptions of the random effects as compared to fixed effects hold, the random effects are better suited to estimate individual effects because the stochastic estimation of the individual effects. If the individual specific effects are uncorrelated to the regressors, the random effects estimator is consistent and more efficient than the fixed effects. However, if the individual effects are correlated to the regressors, the random effects is not consistent and it is better to use the fixed effects estimator which stays consistent in this scenario.
+Provided that the stronger assumptions of the random effects as compared to fixed effects hold, the random effects are better suited to estimate individual effects because the stochastic estimation of the individual effects. If the individual specific effects are uncorrelated to the regressors, the random effects estimator is consistent and more efficient than the fixed effects. However, if the individual effects are correlated to the regressors, the random effects is not consistent and it is better to use the fixed effects estimator which stays consistent in this scenario. Another argument for using random effects is the statistical "freedom" it provides. If the dataset contains a large number of individual groups, the fixed effects estimation will seriously impact the degrees of freedom in the model, thus affecting the statistical estimation of the models.
 
 \section{Question 3}
+
 ```{r load data q3, echo=TRUE, results='hide'}
 dfData2 = read.csv("assignment2b_2023.csv")
 attach(dfData2)
+
+summary(dfData2)
+
+dfData2 <- na.omit(dfData2)
 ```
+
 \subsection{(i)}
 
 ```{r}
 # Pooled OLS model including variable asvabc
-pool_reg1 = plm(earnings ~  school + age + agesq  + ethblack + urban + regne + regnc + regw + regs + asvabc,
-           data = dfData2, index = c("id","time"), model="pooling")
+pool_reg1 = plm(earnings ~  school + age + agesq  + ethblack + urban + regne + regnc + regw + regs + asvabc, data = dfData2, index = c("id","time"), model="pooling")
+
 summary(pool_reg1)
 pool_reg1$coefficients
 ```
+
 ```{r}
 # Pooled OLS model without variable asvabc
-pool_reg2 = plm(earnings ~ school + age + agesq + ethblack + urban + regne + regnc + regw + regs + asvabc,
-           data = dfData2, index = c("id","time"), model="pooling")
+pool_reg2 = plm(earnings ~ school + age + agesq + ethblack + urban + regne + regnc + regw + regs, data = dfData2, index = c("id","time"), model="pooling")
+
 summary(pool_reg2)
 pool_reg2$coefficients
 ```
 
-$\beta_1$ is smaller when including the variable asvabc (index test score, constant over time for each individual). This means that when accounting for the individual effect, the effect of years of schooling is smaller? NEED TO FINISH
+$\beta_1$ is smaller when including the variable asvabc (index test score, constant over time for each individual). This means that when accounting for the individual effect of competence test result, the effect of years of schooling is mitigated on earnings, albeit still significant. This implies that differences in competence matter in terms of returns to schooling and that the competence drives between individual variance in the relationship between earnings and schooling.
 
-\subsection{(ii)}
-First, we check if there is a difference in mean in variability of returns to schooling and earnings between two groups of black and non-black people. 
+\subsection{(ii)} \label{q32}
+
+First, we check if there is a difference in mean in variability of returns to schooling and earnings between two groups of black and non-black people.
+
 ```{r}
 par(mfrow=c(1,2))
 boxplot(dfData2$earnings, dfData2$ethblack, names=c(0,1), ylab="Earnings")
 boxplot(dfData2$school, dfData2$ethblack, names=c(0,1), ylab="Schooling")
-
 ```
-The boxplots show that in the non-black group, the earnings and years of schooling are much higher on average than the black group. Thus, we hypothesize that
+
+The boxplots show that in the non-black group, the earnings and years of schooling are much higher on average than the black group. There are also quite a few outliers for earnings in the non-black group and less so in the black group. Thus, we hypothesize that ethnicity might have at least some effect on earnings but it is unclear how this impact is influenced by crossing terms with schooling.
 
 ```{r}
 pool_reg3 = plm(earnings ~ school*ethblack + school + ethblack + urban + regne + regnc + regw + asvabc, data = dfData2, index = c("id","time"), model="pooling")
 summary(pool_reg3)
 ```
-According to the summary of the model, the cross term of 'school' and 'ethblack' is not significant. Thus, we cannot say that there is heterogeneity in schooling by ethnicity using pooled OLS regression.
 
+According to the summary of the model, the cross term of 'school' and 'ethblack' is not significant on a 5\% significance level. Thus, we cannot say that there is heterogeneity in schooling by ethnicity using pooled OLS regression. This is probably due to using pooled model instead of individual effects model, which fails to detect the heterogeneity of returns to schooling in the population.
 
 \subsection{(iii)}
+
 ```{r}
 ran_reg =plm(earnings ~  school +  ethblack + school*ethblack + urban + regne + regnc + regw + asvabc, data = dfData2, index = c("id","time"), model="random", effect="twoways")
 summary(ran_reg)
 ```
 
+The results now show that all terms, including the ethnicity and schooling cross term are highly significant. This is in stark contrast with the pooled OLS solution of \brefsection{q32}, where the ethnicity and the cross-sectional schooling are not significant. This suggests that when one controls for the heterogeneity among the racial groups in terms of returns to schooling, there is a significant disadvantage of black people in terms of earnings.
 
 \subsection{(iv)}
 
-This depends on whether the individual specific effects are correlated with the regressors. If the individual effects are correlated with the regressors, the fixed effects model makes more sense to be used since the random effects estimator will be inconsistent.
+This depends on whether the individual specific effects are correlated with the regressors. If the individual effects are correlated with the regressors, the fixed effects model makes more sense to be used since the random effects estimator will be inconsistent. We can reasonably assume that competence variable asvabc might be heavily correlated with the school variable or the inclusion of squared age will also introduce multicollinearity, therefore it would probably be more appropriate to use fixed effects.
 
 \subsection{(v)}
 
 ```{r fixedeff}
 # Fixed effects estimation of the heterogeneity of returns to schooling by racial groups
 
-fixed_reg <-  plm(earnings ~ school + ethblack + school*ethblack +age+agesq + urban + regne + regnc + regw + asvabc, data = dfData2, index = c("id","time"), model="within", effect = "individual")
+fixed_reg <-  plm(earnings ~ school + ethblack + school*ethblack + age + agesq + urban + regne + regnc + regw + asvabc, data = dfData2, index = c("id","time"), model="within", effect = "individual")
 summary(fixed_reg)
 ```
 
+The output of the fixed effects regression shows that when we make the switch from the random effects, while some other variables become statistically insignificant such as the age-squared, the school and ethnicity cross term is still strongly significant and the coefficient decreases even more to show a stronger discrimination of black people in earnings.
+
 \subsection{(vi)}
-Null hypothesis: both $\hat{\beta}_{ran\_effect}$ and $\hat{\beta}_{fixed\_effect}$ are consistent but the former is more efficient.
-Alternative hypothesis: only $\hat{\beta}_{fixed\_effect}$ is consistent.
+
+Null hypothesis: both $\hat{\beta}_{ran\_effect}$ and $\hat{\beta}_{fixed\_effect}$ are consistent but the former is more efficient. Alternative hypothesis: only $\hat{\beta}_{fixed\_effect}$ is consistent.
+
 ```{r Hausman}
 # Perform Hausman test
 phtest(ran_reg, fixed_reg, data= dfData2)
 ```
-Since the p-value is significant, we reject the null hypothesis and accept the null hypothesis that only the fixed effect estimator is consistent.
+
+Since the p-value is significant, we reject the null hypothesis and accept the null hypothesis that only the fixed effect estimator is consistent. The Hausman test is especially useful therefore, since it shows us that the fixed effects estimator is more appropriate to be used than the random effects. Due to the heterogeneity between the regressors and the individual effects estimator, the fixed effects estimator will be consistent, while the random effects estimators are likely misleading.
 
 \subsection{(vii)}
+
 ```{r}
 # Get average group mean of schooling per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_mean= mean(school))
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_school = mean(school))
+# Get average group mean of age per individual by ethnicity
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_age = mean(age))
+# Get average group mean of age squared per individual by ethnicity
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_agesq = mean(agesq))
+# Get average group mean of urban per individual by ethnicity
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_urban = mean(urban))
+# Get average group mean of regne per individual by ethnicity
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_regne = mean(regne))
+# Get average group mean of regnc per individual by ethnicity
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_regnc = mean(regnc))
+# Get average group mean of regw per individual by ethnicity
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_regw = mean(regw))
+# Get average group mean of asvabc per individual by ethnicity
+dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_asvabc = mean(asvabc))
 
 # Mundlak estimation
-Mundlak_reg <-  plm(earnings ~ group_mean+ school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc , data = dfData2, index = c("id","time"), model="pooling")
+Mundlak_reg <-  plm(earnings ~ group_m_school + school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc , data = dfData2, index = c("id","time"), model="pooling")
 summary(Mundlak_reg)
+
+#Mundlak_gls <- gls(earnings ~ group_m_school + school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc, data = dfData2)
+
+#summary(Mundlak_gls)
 ```
+
 There is a statistically significant evidence that the coefficient of group_mean $\gamma$ is different than 0. Thus, the individual specific effects are correlated with the regressors and thus, we should use a fixed effect model.
 
 (here they said to use GLS? I used plm to estimate, Don't know if that's alright)
 
 \subsection{(viii)}
-- There is heterogeneity.
-- Fixed effect model is preferred over random effect because the individual specific effects are correlated with the regressors, we need to control for the individual effects.
+
+To sum up, there seems to be strong evidence of heterogeneity in terms of returns to schooling among racial groups. In this case, estimating the model of explaining earnings by schooling is better to be done by some individual effects estimation rather than just some simple pooling. Furthermore, the Hausman test suggests that there is significant correlation between the regressors and the fixed effects, which means that the random effects estimation will not be consistent. Therefore, even though the fixed effects estimation is less efficient, we are left with this as our best model to control for the individual effects. Looking at the results, it seems that there is indeed a different return to schooling for black people versus non-black people.
 
 \subsection{(ix)}
+
 ```{r}
 # Get frequency (number of waves) of each ID
 df_freq = as.data.frame(table(dfData2$id))
@@ -252,13 +289,4 @@ balanced = plm(earnings ~ school + ethblack +age+agesq + urban + regne + regnc +
 phtest(balanced,unbalanced, data= dfData2)
 ```
 
-The Verbeek and Nijman test use a Hausman type test on $\hat{\beta}_{balanced}-\hat{\beta}_{unbalanced}$
-
-The Null hypothesis is that there is no attrition bias, thus the unbalanced estimator is more efficient.
-
-The Alternative hypothesis is that there is attrition bias, thus, the balanced estimator is more efficient.
-
-In this case, we reject the null hypothesis and conclude that the balanced estimator is more efficient.
-
-
-
+The Verbeek and Nijman test use a Hausman type test on $\hat{\beta}_{balanced}-\hat{\beta}_{unbalanced}$. The null hypothesis is that there is no attrition bias, thus the unbalanced estimator is more efficient. The alternative hypothesis is that there is attrition bias, thus, the balanced estimator is more efficient. In this case, we reject the null hypothesis and conclude that the balanced estimator is more efficient. This implies that our analysis could be more efficient by dropping low observation number individuals from the dataset and estimating the model then, either by pooling or fixed effects. 
