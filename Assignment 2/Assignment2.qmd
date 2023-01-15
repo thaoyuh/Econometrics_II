@@ -67,6 +67,7 @@ attach(dfData)
 \section{Question 1}
 \subsection{(i)}
 ```
+
 ```{r quantile plot}
 # Get the quantile values
 quant=quantile(lntotexp, seq(0.1, 0.9, by=.4))
@@ -151,8 +152,6 @@ Provided that the stronger assumptions of the random effects as compared to fixe
 dfData2 = read.csv("assignment2b_2023.csv")
 attach(dfData2)
 
-summary(dfData2)
-
 dfData2 <- na.omit(dfData2)
 ```
 
@@ -233,39 +232,45 @@ Since the p-value is significant, we reject the null hypothesis and accept the n
 \subsection{(vii)}
 
 ```{r}
-# Get average group mean of schooling per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_school = mean(school))
-# Get average group mean of age per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_age = mean(age))
-# Get average group mean of age squared per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_agesq = mean(agesq))
-# Get average group mean of urban per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_urban = mean(urban))
-# Get average group mean of regne per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_regne = mean(regne))
-# Get average group mean of regnc per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_regnc = mean(regnc))
-# Get average group mean of regw per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_regw = mean(regw))
-# Get average group mean of asvabc per individual by ethnicity
-dfData2=dfData2 %>% group_by(ethblack) %>% mutate(group_m_asvabc = mean(asvabc))
+# Get average group mean of schooling per individual
+dfData2=dfData2 %>% group_by(id) %>% mutate(group_m_school = mean(school))
+# Get average group mean of age per individual
+dfData2=dfData2 %>% group_by(id) %>% mutate(group_m_age = mean(age))
+# Get average group mean of age squared per individual
+dfData2=dfData2 %>% group_by(id) %>% mutate(group_m_agesq = mean(agesq))
+# Get average group mean of urban per individual
+dfData2=dfData2 %>% group_by(id) %>% mutate(group_m_urban = mean(urban))
+# Get average group mean of regne per individual
+dfData2=dfData2 %>% group_by(id) %>% mutate(group_m_regne = mean(regne))
+# Get average group mean of regnc per individual 
+dfData2=dfData2 %>% group_by(id) %>% mutate(group_m_regnc = mean(regnc))
+# Get average group mean of regw per individual
+dfData2=dfData2 %>% group_by(id) %>% mutate(group_m_regw = mean(regw))
 
-# Mundlak estimation
-Mundlak_reg <-  plm(earnings ~ group_m_school + school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc , data = dfData2, index = c("id","time"), model="pooling")
-summary(Mundlak_reg)
+# Unrestricted model including all group means for Mundlak
+Mundlak_gls_ur <- gls(earnings ~ group_m_school + group_m_age + group_m_agesq + group_m_urban + group_m_regne + group_m_regnc + group_m_regw + school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc, data = dfData2)
 
-#Mundlak_gls <- gls(earnings ~ group_m_school + school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc, data = dfData2)
+# Restricted GLS without any group means
+Mundlak_gls_r <- gls(earnings ~ school + ethblack +age+agesq + urban + regne + regnc + regw + asvabc, data = dfData2)
 
-#summary(Mundlak_gls)
+SSR_ur <- (t(Mundlak_gls_ur$residuals) %*% Mundlak_gls_ur$residuals)
+
+SSR_r <- (t(Mundlak_gls_r$residuals) %*% Mundlak_gls_r$residuals)
+
+nr_degf_ur = Mundlak_gls_ur[["dims"]][["N"]] - Mundlak_gls_ur[["dims"]][["p"]] - 1
+
+F_teststat <- ((SSR_r - SSR_ur)/7)/(SSR_ur/nr_degf_ur)
+print(F_teststat)
+
+p_val <- 1-pf(F_teststat, 7, nr_degf_ur)
+print(p_val)
 ```
 
-There is a statistically significant evidence that the coefficient of group_mean $\gamma$ is different than 0. Thus, the individual specific effects are correlated with the regressors and thus, we should use a fixed effect model.
-
-(here they said to use GLS? I used plm to estimate, Don't know if that's alright)
+There is statistically significant evidence suggesting that the coefficients of the group_means $\gamma$ are jointly different than 0. The null hypothesis is that the coefficients of the time-variant means are jointly 0, that is $H_0: \gamma_1 = \gamma_2 = \gamma_3 = \gamma_4 = \gamma_5 = \gamma_6 = \gamma_7$. This hypothesis can easily be tested by estimating a restricted and an unrestricted model and investigating the improvement from the first to the second in terms of the sum of squared residuals (i.e. by how much the explanatory power of the model improves when including the hypothetically 0 coefficient variables). Our test rejects the null hypothesis at 5\% significance level, which means that at least some of the grouped means are not zero-weighted in a GLS estimation model, which in turn implies that (a part of) the fixed effects are correlated with the regressors. Thus, the individual specific effects are correlated with the regressors and thus, we should use a fixed effect model.
 
 \subsection{(viii)}
 
-To sum up, there seems to be strong evidence of heterogeneity in terms of returns to schooling among racial groups. In this case, estimating the model of explaining earnings by schooling is better to be done by some individual effects estimation rather than just some simple pooling. Furthermore, the Hausman test suggests that there is significant correlation between the regressors and the fixed effects, which means that the random effects estimation will not be consistent. Therefore, even though the fixed effects estimation is less efficient, we are left with this as our best model to control for the individual effects. Looking at the results, it seems that there is indeed a different return to schooling for black people versus non-black people.
+To sum up, there seems to be strong evidence of heterogeneity in terms of returns to schooling among racial groups. In this case, estimating the model of explaining earnings by schooling is better to be done by some individual effects estimation rather than just some simple pooling. Furthermore, the Hausman test suggests that there is significant correlation between the regressors and the fixed effects, which means that the random effects estimation will not be consistent. This is further confirmed by the Mundlak regression test (which is asymptotically equivalent to the Hausman test). Therefore, even though the fixed effects estimation is less efficient, we are left with this as our best model to control for the individual effects. Looking at the results, it seems that there is indeed a different return to schooling for black people versus non-black people.
 
 \subsection{(ix)}
 
