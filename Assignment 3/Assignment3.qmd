@@ -51,17 +51,17 @@ biblio-title: References
 
 \clearpage
 
-#```{r setup q1, echo=TRUE, results='hide'}
-## load packages
-#if(!require(pacman)){install.packages("pacman")}
-#
-#p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
-#       sampleSelection, quantreg, plm, nlme)
-#
-##load data
+```{r setup q1, echo=TRUE, results='hide'}
+# load packages
+if(!require(pacman)){install.packages("pacman")}
+
+p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
+       sampleSelection, quantreg, plm, nlme, knitr)
+
+#load data
 #dfData = read.csv("assignment2a_2023.csv")
 #attach(dfData)
-#```
+```
 
 \section{Question 1}
 
@@ -148,11 +148,30 @@ dfData <- na.omit(dfData)
 
 \subsection{(i)} \label{q2_1}
 
+```{r}
+df_noR <- dfData[dfData$bonus0 == 1,]
+df_lowR <- dfData[dfData$bonus500 == 1,]
+df_highR <- dfData[dfData$bonus1500 == 1,]
 
+sum_noR <- sapply(df_noR, mean, na.rm=TRUE)
+sum_lowR <- sapply(df_lowR, mean, na.rm=TRUE)
+sum_highR <- sapply(df_highR, mean, na.rm=TRUE)
+
+summary_table <- cbind(sum_noR, sum_lowR, sum_highR)
+
+kable(summary_table, caption="The means of the predictor and dependent variables across the three groups", col.names = c("no reward", "low reward", "high reward"), digits = 3)
+```
+
+As we can see from the summary table above, the no reward group saw a 19.5\% pass rate, the low reward group saw a 20.2\% pass rate while the high reward group saw a 24.1\% pass rate. At the same time, we can also look at the other numeric variables to investigate their means and check how balanced the other predictors are. Naturally since we grouped the students based on the incentives, the three \textit{bonus#} variables will not be balanced. However, the other ones are quite similar among the three groups implying that the background characteristics are relatively balanced. In particular, parental educational background (\textit{myeduc} and \textit{fyeduc}) and high-school math scores (\textit{math}) are quite similar to one another among groups.
 
 \subsection{(ii)} \label{q2_2}
 
+```{r}
 
+prob_lm <- lm(pass ~ bonus500 + bonus1500, data = dfData)
+
+summary(prob_lm)
+```
 
 \subsection{(iii)} \label{q2_3}
 
