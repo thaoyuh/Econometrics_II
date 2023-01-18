@@ -51,21 +51,35 @@ biblio-title: References
 
 \clearpage
 
-```{r setup q1, echo=TRUE, results='hide'}
-# load packages
-if(!require(pacman)){install.packages("pacman")}
-
-p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
-       sampleSelection, quantreg, plm, nlme)
-
-#load data
-dfData = read.csv("assignment2a_2023.csv")
-attach(dfData)
-```
+#```{r setup q1, echo=TRUE, results='hide'}
+## load packages
+#if(!require(pacman)){install.packages("pacman")}
+#
+#p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
+#       sampleSelection, quantreg, plm, nlme)
+#
+##load data
+#dfData = read.csv("assignment2a_2023.csv")
+#attach(dfData)
+#```
 
 \section{Question 1}
 
-\subsection{(i)}
+\begin{table}[H] \centering
+\begin{tabular}{l|cc|cc}
+\hline
+\hline
+color  & \multicolumn{2}{c}{number of individual} & \multicolumn{2}{c}{average outcome} \\
+       & treated             & control            & treated          & control          \\ \hline
+purple & 100                 & 100                & 9                & 7                \\
+blue   & 75                  & 25                 & 13               & 8                \\
+green  & 25                  & 75                 & 10               & 9               \\
+\hline
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{(i)} \label{q1_1}
 
 
 
@@ -75,46 +89,50 @@ attach(dfData)
 
 
 
-\subsection{(iii)}
+\subsection{(iii)} \label{q1_3}
 
 
-\subsection{(iv)}
+
+
+\subsection{(iv)} \label{q1_4}
+
+
 
 
 \section{Question 2}
+#
+#```{r load data q3, echo=TRUE, results='hide'}
+#dfData2 = read.csv("assignment2b_2023.csv")
+#attach(dfData2)
+#
+#dfData2 <- na.omit(dfData2)
+#```
 
-```{r load data q3, echo=TRUE, results='hide'}
-dfData2 = read.csv("assignment2b_2023.csv")
-attach(dfData2)
-
-dfData2 <- na.omit(dfData2)
-```
-
-\subsection{(i)}
-
-
-
-\subsection{(ii)} \label{q32}
+\subsection{(i)} \label{q2_1}
 
 
 
-\subsection{(iii)}
+\subsection{(ii)} \label{q2_2}
 
 
 
-\subsection{(iv)}
+\subsection{(iii)} \label{q2_3}
 
 
 
-\subsection{(v)}
+\subsection{(iv)} \label{q2_4}
 
 
 
-\subsection{(vi)}
+\subsection{(v)} \label{q2_5}
 
 
 
-\subsection{(vii)}
+\subsection{(vi)} \label{q2_6}
+
+
+
+\subsection{(vii)} \label{q2_7}
 
 
 
