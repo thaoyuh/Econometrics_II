@@ -96,22 +96,38 @@ Then, the treatment effect for "observation" purple is $9 - 7 = 2$, the treatmen
 Using the assumption of \brefsection{q1_1}, we can infer here that we are looking for the average treatment effect of the full population including all colors. The average treatment effect is generally given by:
 
 \begin{equation}
-ATE = E[\Delta] = E[y_{d=1} - y_{d=0}] = E[y_{d=1}] - E[y_{d=0}] = \frac{1}{N_T} \Sigma^{N_T}_{i=1} y_{i,d=1} - \frac{1}{N_{NT}} \Sigma^{N_{NT}}_{i=1} y_{i,d=0},
-\end{equation}
+ATE = E[\Delta] = E[y_{d=1} - y_{d=0}],
 
-\noindent where $N_T$ is the number of individuals in the treatment group while $N_{NT}$ is the number of individuals in the control group. Our data in the exercise does not contain information again on the individual outcomes, however we can use the average outcomes of treatment and control in each color group to calculate the total $E[y_{d=1}]$ and $E[y_{d=0}]$ on the full population. Therefore, the ATE for the whole population can be calculated as:
+\noindent where we take the average across the observation differences. Our data in the exercise does not contain information again on the individual outcomes, however we can use the average outcomes of treatment and control in each color group to calculate the total differences between $y_{d=1}$ and $y_{d=0}$ on the full population. Therefore, we can calculate the ATE as:
 
 ```{r}
-E_treatment <- (9*100 + 13*75 + 10*25) / (100+75+25)
-E_control <- (7*100 + 8*25 + 9*75) / (100+75+25)
-
-ATE = E_treatment - E_control
+E_diff_purple = 9 - 7
+E_diff_blue = 13 - 8 
+E_diff_green = 10 - 9
+  
+ATE = (E_diff_purple * 200 + E_diff_blue * 100 + E_diff_green * 100) / 400
 ATE
 ```
 
+\end{equation}
+
 \subsection{(iii)} \label{q1_3}
 
+Compared to the solution in \brefsection{q1_2}, now we consider the average treatment effect among treated (ATET). For this case, we need to modify the previous definition to:
 
+\begin{equation}
+ATET = E[\Delta | d=1] = E[y_{d=1} - y_{d=0} | d=1] = E[y_{d=1}] - E[y_{d=0}] = \frac{1}{N_T} \Sigma^{N_T}_{i=1} y_{i,d=1} - \frac{1}{N_{NT}} \Sigma^{N_{NT}}_{i=1} y_{i,d=0},
+\end{equation}
+
+\noindent where $N_T$ is the number of individuals in the treatment group while $N_{NT}$ is the number of individuals in the control group. Therefore, the ATET for the whole population can be calculated as:
+
+```{r}
+E_treatment_atet <- (9*100 + 13*75 + 10*25) / (100+75+25)
+E_control_atet <- (7*100 + 8*25 + 9*75) / (100+75+25)
+
+ATET = E_treatment_atet - E_control_atet
+ATET
+```
 
 \subsection{(iv)} \label{q1_4}
 
@@ -119,13 +135,16 @@ The ATE measure generally describes the expected gain in $y$ achieved by treatin
 
 
 \section{Question 2}
-#
-#```{r load data q3, echo=TRUE, results='hide'}
-#dfData2 = read.csv("assignment2b_2023.csv")
-#attach(dfData2)
-#
-#dfData2 <- na.omit(dfData2)
-#```
+
+```{r load data q2, echo=TRUE, results='hide'}
+# Make sure to delete this before handin, just have it as setting working directory
+setwd("~/GitHub/bds_block3/Econometrics_II/Assignment 3")
+
+dfData = read.csv("bonus.csv")
+attach(dfData)
+
+dfData <- na.omit(dfData)
+```
 
 \subsection{(i)} \label{q2_1}
 
