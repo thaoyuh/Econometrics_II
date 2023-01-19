@@ -56,7 +56,7 @@ biblio-title: References
 if(!require(pacman)){install.packages("pacman")}
 
 p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
-       sampleSelection, quantreg, plm, nlme, knitr)
+       sampleSelection, quantreg, plm, nlme, knitr,car)
 
 #load data
 #dfData = read.csv("assignment2a_2023.csv")
@@ -97,6 +97,7 @@ Using the assumption of \brefsection{q1_1}, we can infer here that we are lookin
 
 \begin{equation}
 ATE = E[\Delta] = E[y_{d=1} - y_{d=0}],
+\end{equation}
 
 \noindent where we take the average across the observation differences. Our data in the exercise does not contain information again on the individual outcomes, however we can use the average outcomes of treatment and control in each color group to calculate the total differences between $y_{d=1}$ and $y_{d=0}$ on the full population. Therefore, we can calculate the ATE as:
 
@@ -109,7 +110,7 @@ ATE = (E_diff_purple * 200 + E_diff_blue * 100 + E_diff_green * 100) / 400
 ATE
 ```
 
-\end{equation}
+
 
 \subsection{(iii)} \label{q1_3}
 
@@ -138,7 +139,7 @@ The ATE measure generally describes the expected gain in $y$ achieved by treatin
 
 ```{r load data q2, echo=TRUE, results='hide'}
 # Make sure to delete this before handin, just have it as setting working directory
-setwd("~/GitHub/bds_block3/Econometrics_II/Assignment 3")
+#setwd("~/GitHub/bds_block3/Econometrics_II/Assignment 3")
 
 dfData = read.csv("bonus.csv")
 attach(dfData)
@@ -162,34 +163,139 @@ summary_table <- cbind(sum_noR, sum_lowR, sum_highR)
 kable(summary_table, caption="The means of the predictor and dependent variables across the three groups", col.names = c("no reward", "low reward", "high reward"), digits = 3)
 ```
 
-As we can see from the summary table above, the no reward group saw a 19.5\% pass rate, the low reward group saw a 20.2\% pass rate while the high reward group saw a 24.1\% pass rate. At the same time, we can also look at the other numeric variables to investigate their means and check how balanced the other predictors are. Naturally since we grouped the students based on the incentives, the three \textit{bonus#} variables will not be balanced. However, the other ones are quite similar among the three groups implying that the background characteristics are relatively balanced. In particular, parental educational background (\textit{myeduc} and \textit{fyeduc}) and high-school math scores (\textit{math}) are quite similar to one another among groups.
+As we can see from the summary table above, the no reward group saw a 19.5\% pass rate, the low reward group saw a 20.2\% pass rate while the high reward group saw a 24.1\% pass rate. At the same time, we can also look at the other numeric variables to investigate their means and check how balanced the other predictors are. Naturally since we grouped the students based on the incentives, the three \textit{bonus} variables will not be balanced. However, the other ones are quite similar among the three groups implying that the background characteristics are relatively balanced. In particular, parental educational background (\textit{myeduc} and \textit{fyeduc}) and high-school math scores (\textit{math}) are quite similar to one another among groups.
 
 \subsection{(ii)} \label{q2_2}
 
 ```{r}
-
-prob_lm <- lm(pass ~ bonus500 + bonus1500, data = dfData)
-
-summary(prob_lm)
+prob_lm1 <- lm(pass ~ bonus500 + bonus1500, data = dfData)
 ```
-
+Looking at the summary statistics for the first model, we can see that the effects of the treatments are not statistically significant. Thus, we cannot say whether the treatment effect has an influence on the students' study achievements or not.
+```{r}
+prob_lm2 <- lm(pass ~ bonus500 + bonus1500 + fyeduc + p0 + math, data = dfData)
+summary(prob_lm2)
+```
+In the second model, we add 3 additional control variables, namely, father's education \textit{fyeduc}, subjective self-assessment of the pass probability \textit{p0}, and highschool math score \textit{math}. However, the significance of the treatment variables \textit{bonus500} and \textit{bonus1500} do not change. Thus, from both of this model, we say that the financial incenntive does not influence student's study performance in the first year.
 \subsection{(iii)} \label{q2_3}
 
+```{r}
+prob_lm3 <- lm(pass ~ bonus500 + bonus1500 + fyeduc + p0 + math +job +effort, data = dfData)
+summary(prob_lm3)
+```
+In the third model, we include the variable indicating whether a student has a job \textit{job} and the average number of study hours \textit{effort}. 
 
+To comment on this approach, we do not think these two control variables are good addition to the model as it might be correlated with the treatment variables and with each other. For example, the amount of study effort one puts in might correlate with the type of reward they are assign (e.g., a higher reward means more study efforts). On the other hand, if the reward of studying is low, a student might be more incentivized to take up part-time job, and the fact that a student has a job might lower the average number of hours they put into the study (which is measures in the variable \textit{effort}).
 
 \subsection{(iv)} \label{q2_4}
+For this question, we use a linear probabi
+```{r}
+drop_lm <- lm(dropout ~ bonus500 + bonus1500 + math + fyeduc + p0 + effort + job, data=dfData)
+credsYear1_lm <- lm(stp2001 ~ bonus500 + bonus1500 + math + fyeduc + p0 + effort + job, data=dfData)
+credsYear3_ln <- lm(stp2004 ~ bonus500 + bonus1500 + math + fyeduc + p0 + effort + job, data=dfData)
 
-
+stargazer::stargazer(drop_lm,credsYear1_lm,credsYear3_ln, type = "text")
+```
+For this purpose, we build 3 linear probability models that include the treatment variables and all exogenous variables as the predictors. The summary shows that the effect of the financial incentive is not significant. 
 
 \subsection{(v)} \label{q2_5}
+The minimum detectable effect of this experiment is measure using the formula:
 
+(insert latex formula)
+
+We need to calculate the MDE for both low-reward versus control group and high-reward versus control group
+```{r}
+MinDE <- function(dfData, input_model, sTreatment, dAlpha, dPower){
+  num_coef <- length(input_model$coefficients)
+  
+  # get the number of observations
+  n_obs <- nrow(dfData)
+  # Observations in treated group
+  n_treatment <- sum(dfData[,sTreatment])
+  # Proportion of treatment observations
+  proportion <- n_treatment/n_obs
+  
+  # T_statistics of alpha and power levels
+  t_stats_alpha <- qt(1-dAlpha/2, n_obs - num_coef)
+  t_power <- qt(1-dPower, n_obs - num_coef)
+  
+  # get variance of residuals
+  dVariance <- var(input_model$residuals)
+  
+  # get the MDE
+  MDE <- (t_stats_alpha - t_power) * sqrt(1/(proportion*(1-proportion))) * sqrt(dVariance/n_obs)
+  return(MDE)
+}
+
+# Initialize desired alpha and power
+dAlpha = 0.05
+dPower = 0.75
+
+# Prepare dataframe
+df_low_treatment = dfData[dfData$bonus1500 != 1,]
+df_high_treatment = dfData[dfData$bonus500 != 1,]
+
+#Estimate linear model with low reward treatment and control group
+
+Low_treatment = lm(pass ~ bonus500 + math + fyeduc + p0 + effort + job, data=df_low_treatment)
+
+#Get MDE of low-reward versus control group
+MDE_low = MinDE(df_low_treatment,Low_treatment,"bonus500",dAlpha, dPower)
+
+#Estimate linear model with high reward treatment and control group
+High_treatment = lm(pass ~ bonus1500 + math + fyeduc + p0 + effort + job, data=df_high_treatment)
+
+#Get MDE of high-reward versus control group
+MDE_high = MinDE(df_high_treatment, High_treatment,"bonus1500",dAlpha, dPower)
+
+cat("The MDE of the low reward treatment group is: ", MDE_low, "\n", ",and the MDE of the high reward treatment group is: ", MDE_high)
+```
 
 
 \subsection{(vi)} \label{q2_6}
+An increases in the pass rate of $10\%$ points correspond with the Minimum Detectable Effect size of $10\%$. Given this, we can calculate the minimum number of observations needed using:
 
+
+(insert Latex formula from lecture)
+
+Assumptions: since we do not know n and the degree of freedom to calculate the t-stats, we assume n is big enough for a normal distribution and calculate the statictics using a standard normal distribution.
+
+```{r}
+get_n <- function(dfData, input_model, sTreatment, dAlpha, dPower, MinDE=0.1, dSigma_sq){
+  # T_statistics of alpha and power levels
+  t_stats_alpha <- qnorm(1-dAlpha/2, 0,dSigma_sq)
+  t_power <- qnorm(1-dPower, 0, dSigma_sq)
+  
+  # get the number of observations
+  n_obs <- nrow(dfData)
+  # Observations in treated group
+  n_treatment <- sum(dfData[,sTreatment])
+  # Proportion of treatment observations
+  proportion <- n_treatment/n_obs
+  
+  # get the desired sample size
+  sample_size = ((t_stats_alpha-t_power)/MinDE)^2*(dSigma_sq/(proportion/(1-proportion)))
+  return(round(sample_size))
+}
+
+# Initialize, set sigma and alpha fixed
+dSigma_sq = 1
+dAlpha= 0.5
+dPower = 0.8
+
+# required sample sizez needed in each treatment group
+sample_low_required = get_n(df_low_treatment, input_model = Low_treatment,"bonus500", dAlpha = dAlpha, dPower = dPower, dSigma_sq = dSigma_sq)
+sample_low_required
+
+sample_high_required = get_n(df_high_treatment, input_model = High_treatment,"bonus1500", dAlpha = dAlpha, dPower = dPower, dSigma_sq = dSigma_sq)
+sample_high_required
+```
 
 
 \subsection{(vii)} \label{q2_7}
+Looking at the formula for MDE (page 35 of lecture slide), fewer students in the experiment mean higher MDE. If we want to achieve the same MDE with fewer students, we need to choose the proportion of control versus treatment group such that the term $p(1-p)$ is minimized. Taking the derivative of that term with respect to $p$, we find the optimal value of $p = 0.5$
 
+in which: p is the proportion of treated students. To get $p=0.5$, we indeed need to increase number of students in control group.
+
+Do you agree? now we need to relate this with our dataset, do some count functions, then we're done!
 
 
