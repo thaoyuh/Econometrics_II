@@ -62,6 +62,7 @@ p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
 
 \section{Question 1}
 
+```{=tex}
 \begin{table}[H] \centering
 \begin{tabular}{l|cc|cc}
 \hline
@@ -75,27 +76,29 @@ green  & 25                  & 75                 & 10               & 9        
 \hline
 \end{tabular}
 \end{table}
-
+```
 \subsection{(i)} \label{q1_1}
 
 The treatment effect in theory is the difference between the outcomes if the individual is treated versus if the individual is not treated. Suppose that for individual $i$, the treatment effect is defined as:
 
+```{=tex}
 \begin{equation}
 TE_i = \Delta_i = y_{i,d=1} - y_{i,d=0},
 \end{equation}
-
+```
 \noindent where the $y$ marks the outcome and $d$ is the dummy whether individual $i$ was treated ($d=1$) or not ($d=0$). However, this is rarely possible to be observed for each individual, as treatment is generally considered mutually exclusive, so an individual is either treated or not. Therefore, in this example we cannot calculate TE measures for individuals within color groups, but we can pretend as if one color corresponds to one observation, and calculate the three treatment effects across the color groups.
 
-Then, the treatment effect for "observation" purple is $9 - 7 = 2$, the treatment effect for "observation" blue is $13 - 8 = 5$ and the treatment effect for "observation" green is $10 - 9 = 1$. 
+Then, the treatment effect for "observation" purple is $9 - 7 = 2$, the treatment effect for "observation" blue is $13 - 8 = 5$ and the treatment effect for "observation" green is $10 - 9 = 1$.
 
 \subsection{(ii)} \label{q1_2}
 
 Using the assumption of \brefsection{q1_1}, we can infer here that we are looking for the average treatment effect of the full population including all colors. The average treatment effect is generally given by:
 
+```{=tex}
 \begin{equation}
 ATE = E[\Delta] = E[y_{d=1} - y_{d=0}],
 \end{equation}
-
+```
 \noindent where we take the average across the observation differences. Our data in the exercise does not contain information again on the individual outcomes, however we can use the average outcomes of treatment and control in each color group to calculate the total differences between $y_{d=1}$ and $y_{d=0}$ on the full population. Therefore, we can calculate the ATE as:
 
 ```{r}
@@ -111,6 +114,7 @@ ATE
 
 Compared to the solution in \brefsection{q1_2}, now we consider the average treatment effect among treated (ATET). For this case, we need to modify the previous definition to:
 
+```{=tex}
 \begin{equation}
 \begin{aligned}
 ATET & = E[\Delta | d=1] = E[y_{d=1} - y_{d=0} | d=1] = E[y_{d=1}] - E[y_{d=0}] 
@@ -118,7 +122,7 @@ ATET & = E[\Delta | d=1] = E[y_{d=1} - y_{d=0} | d=1] = E[y_{d=1}] - E[y_{d=0}]
 & = \frac{1}{N_T} \Sigma^{N_T}_{i=1} y_{i,d=1} - \frac{1}{N_{NT}} \Sigma^{N_{NT}}_{i=1} y_{i,d=0},
 \end{aligned}
 \end{equation}
-
+```
 \noindent where $N_T$ is the number of individuals in the treatment group while $N_{NT}$ is the number of individuals in the control group. Therefore, the ATET for the whole population can be calculated as:
 
 ```{r}
@@ -131,7 +135,9 @@ ATET
 
 \subsection{(iv)} \label{q1_4}
 
-The ATE measure generally describes the expected gain in $y$ achieved by treating a random member $i$ from the population, i.e. how much one benefits from being selected for the treatment compared to people who were not. On the other hand, ATET describes the average gain achieved by the treatment for the treated group, i.e. the comparison is not to the population but peer-to-peer, what is the expected benefit for those who are selected. The ATET is more helpful if we are not mainly interested in the potentially positive effect of the treatment for those who are treated versus those who are not, but rather the magnitude of these positive effects. Suppose that we have an experiment where the government announces a new plan to introduce an additional level of health insurance, where the own risk cost would be cut in half, in order to investigate the effects of these on household savings. Arguably, cutting the own risk cost in half without changing the insurance monthly premiums would most likely have a positive effect on the wealth for those who are involved in the initial study, but if the government is rather interested in measuring the average savings surplus this would create for households, we would be more interested in the ATET measure as this policy will ideally be introduced for everyone later on and we are solely interested in the average savings surplus this would create for everyone involved.
+The ATE measure generally describes the expected gain in $y$ achieved by treating a random member $i$ from the population, i.e. how much one benefits from being selected for the treatment compared to people who were not. On the other hand, ATET describes the average gain achieved by the treatment for the treated group, i.e. the comparison is not to the population but peer-to-peer, what is the expected benefit for those who are selected. The ATET is more helpful if we are not mainly interested in the potentially positive effect of the treatment for those who are treated versus those who are not, but rather the magnitude of these positive effects. 
+
+Suppose that we have an experiment where the government announces a new plan to introduce an additional level of health insurance, where the own risk cost would be cut in half, in order to investigate the effects of these on household savings. Initially, the government selects a few thousand people to have reduced own cost since it would be costly to select the whole population for treatment group. Arguably, cutting the own risk cost in half without changing the insurance monthly premiums would most likely have a positive effect on the wealth for those who are involved in the initial study, so the ATE estimate would likely tell us that program participants will have larger household savings due to the treatment. But if the government is rather interested in measuring the average savings surplus this would create for households, we would be more interested in the ATET measure. If the government wants this policy to be introduced for everyone later on, the main interest would be the estimated average savings surplus the treatment would create (for all households).
 
 \section{Question 2}
 
@@ -158,7 +164,7 @@ summary_table <- cbind(sum_noR, sum_lowR, sum_highR)
 kable(summary_table, caption="The means of the predictor and dependent variables across the three groups", col.names = c("no reward", "low reward", "high reward"), digits = 3)
 ```
 
-As we can see from the summary table above, the no reward group saw a 19.5\% pass rate, the low reward group saw a 20.2\% pass rate while the high reward group saw a 24.1\% pass rate. At the same time, we can also look at the other numeric variables to investigate their means and check how balanced the other predictors are. Naturally since we grouped the students based on the incentives, the three \textit{bonus} variables will not be balanced. However, the other ones are quite similar among the three groups implying that the background characteristics are relatively balanced. In particular, parental educational background (\textit{myeduc} and \textit{fyeduc}) and high-school math scores (\textit{math}) are quite similar to one another among groups.
+As we can see from the summary table above, the no reward group saw a 19.5% pass rate, the low reward group saw a 20.2% pass rate while the high reward group saw a 24.1% pass rate. At the same time, we can also look at the other numeric variables to investigate their means and check how balanced the other predictors are. Naturally since we grouped the students based on the incentives, the three \textit{bonus} variables will not be balanced. However, the other ones are quite similar among the three groups implying that the background characteristics are relatively balanced. In particular, parental educational background (\textit{myeduc} and \textit{fyeduc}) and high-school math scores (\textit{math}) are quite similar to one another among groups.
 
 \subsection{(ii)} \label{q2_2}
 
@@ -182,7 +188,7 @@ In the second model, we add 3 additional control variables, namely, father's edu
 
 \subsection{(iii)} \label{q2_3}
 
-In the third model, we include the variable indicating whether a student has a job (\textit{job}) and the average number of study hours (\textit{effort}). 
+In the third model, we include the variable indicating whether a student has a job (\textit{job}) and the average number of study hours (\textit{effort}).
 
 To comment on this approach, we do not think these two control variables are good addition to the model as it might be correlated with the treatment variables and with each other. For example, the amount of study effort one puts in might correlate with the type of reward they are assign (e.g., a higher reward means more study efforts). On the other hand, if the reward of studying is low, a student might be more incentivised to take up a part-time job, and the fact that a student has a job might lower the average number of hours they put into the study (which is measures in the variable \textit{effort}).
 
@@ -210,11 +216,13 @@ The summary shows a clear picture. For all three dependent variables, \textit{dr
 
 The minimum detectable effect of this experiment is the measure using the formula:
 
+```{=tex}
 \begin{equation} \label{eq_mde}
 \begin{aligned}
 MDE = (t_{1-\alpha/2} - t_{1-q}) \sqrt{\frac{1}{p(1-p)}} \sqrt{\frac{\sigma^2}{n}}
 \end{aligned}
 \end{equation}
+```
 
 We need to calculate the MDE for both low-reward versus control group and high-reward versus control group. Therefore, our calculations follow as:
 
@@ -243,7 +251,7 @@ MinDE <- function(dfData, input_model, sTreatment, dAlpha, dPower){
 
 # Initialize desired alpha and power
 dAlpha = 0.05
-dPower = 0.75
+dPower = 0.8
 
 # Prepare dataframe
 df_low_treatment = dfData[dfData$bonus1500 != 1,]
@@ -269,16 +277,18 @@ cat("The MDE of the low reward treatment group is: ", MDE_low, ", \n", "and the 
 
 An increases in the pass rate of $10\%$ points correspond with the Minimum Detectable Effect size of $10\%$. Given this, we can calculate the minimum number of observations needed using the rewritten version of \beqref{eq_mde}:
 
+```{=tex}
 \begin{equation} \label{eq_nmin}
 \begin{aligned}
 n = \biggl( \frac{t_{1-\alpha/2} - t_{1-q}}{MDE} \biggl)^2 \frac{\sigma^2}{p(1-p)}
 \end{aligned}
 \end{equation}
+```
 
 However, for this we need to make a few assumptions. Since we are looking for the minimum sample size, we do not know $n$ and the degrees of freedom to calculate the t-stats in the numerator of \beqref{eq_nmin}. Therefore, we need to assume that $n$ is large enough to approach normal distribution (asymptotics) and calculate the statistics using a standard normal distribution.
 
 ```{r}
-get_n <- function(dfData, input_model, sTreatment, dAlpha, dPower, MinDE=0.1, dSigma_sq){
+get_n <- function(dfData, sTreatment, dAlpha, dPower, MinDE=0.1, dSigma_sq){
   # T_statistics of alpha and power levels
   t_stats_alpha <- qnorm(1-dAlpha/2, 0,dSigma_sq)
   t_power <- qnorm(1-dPower, 0, dSigma_sq)
@@ -291,28 +301,64 @@ get_n <- function(dfData, input_model, sTreatment, dAlpha, dPower, MinDE=0.1, dS
   proportion <- n_treatment/n_obs
   
   # get the desired sample size
-  sample_size = ((t_stats_alpha-t_power)/MinDE)^2*(dSigma_sq/(proportion/(1-proportion)))
+  sample_size = ((t_stats_alpha-t_power)/MinDE)^2 *(dSigma_sq/(proportion*(1-proportion)))
   return(round(sample_size))
 }
 
 # Initialize, set sigma and alpha fixed
 dSigma_sq = 1
-dAlpha= 0.5
+dAlpha= 0.05
 dPower = 0.8
 
 # required sample sizes needed in each treatment group
-sample_low_required = get_n(df_low_treatment, input_model = Low_treatment,"bonus500", dAlpha = dAlpha, dPower = dPower, dSigma_sq = dSigma_sq)
+sample_low_required = get_n(df_low_treatment, "bonus500", dAlpha = dAlpha, dPower = dPower, MinDE=0.1, dSigma_sq = dSigma_sq)
 
-sample_high_required = get_n(df_high_treatment, input_model = High_treatment,"bonus1500", dAlpha = dAlpha, dPower = dPower, dSigma_sq = dSigma_sq)
+sample_high_required = get_n(df_high_treatment, "bonus1500", dAlpha = dAlpha, dPower = dPower, MinDE=0.1, dSigma_sq = dSigma_sq)
 
-cat("The minimum sample size to detect a 10% point increase", "\n", "in the low reward treatment group is: ", sample_low_required, ", \n", "in the high reward treatment group is: ", sample_high_required, ", \n", "and the number of observations in the dataset is:", nrow(dfData))
+cat("The minimum sample size to detect a 10% point increase", "\n", "in the low reward treatment group is: ", sample_low_required, ", \n", "in the high reward treatment group is: ", sample_high_required, ", \n", "and the number of observations in the dataset is:", "\n", "in the control and low treatment: ", nrow(df_low_treatment), ", \n", "and in the control and high treatment group: ", nrow(df_high_treatment))
 ```
-From these results, we can establish that the sample size of the data is just barely achieving the minimum sample size to detect such a change in the dependent variable resulting from the treatment in the low treatment group, and in fact it is just below the minimum sample size to detect such a change in the high treatment group. Hence perhaps it would be interesting to see what would happen to the treatment coefficients if one would increase the sample size slightly.
+
+From these results, we can establish that the sample size of the data is much lower than the required minimum sample size to be able to detect a 10\% increase in the pass rates. Hence perhaps it would be interesting to see what would happen to the treatment coefficients if one would considerably increase the sample size while keeping the treatment and control groups balanced.
 
 \subsection{(vii)} \label{q2_7}
 
 Looking at the formula for MDE in \beqref{eq_mde}, fewer students in the experiment mean higher MDE (since $n$ is in denominator). If we want to achieve the same MDE with fewer students, we need to choose the proportion of control versus treatment group such that the term $p(1-p)$ is minimized (since this term is also in the denominator). Taking the derivative of that term with respect to $p$, we find the optimal value of $p = 0.5$ where p is the proportion of treated students. To get $p=0.5$, we indeed need to increase number of students in the control group.
 
-Do you agree? now we need to relate this with our dataset, do some count functions, then we're done!
+In this case, we consider a different case from the one in \brefsection{q2_6}: since control provides counterfactual to both low and high treatment, we will consider the proportion between control and the sum of the two treatment groups. In our data, this means that the size of the control group needs to be equal to the size of the treatment groups such that we can achieve the same MDE with lower minimum sample size. First let us look at the current minimum sample size such that the treatment groups are considered as one. Then we can calculate with the same number of observations what if the control group would make up half of the observations. 
 
+```{r}
+get_n_eq <- function(dfData, dT, dAlpha, dPower, MinDE=0.1, dSigma_sq){
+  # T_statistics of alpha and power levels
+  t_stats_alpha <- qnorm(1-dAlpha/2, 0,dSigma_sq)
+  t_power <- qnorm(1-dPower, 0, dSigma_sq)
+  
+  # get the number of observations
+  n_obs <- nrow(dfData)
+  # Observations in treated group
+  n_treatment <- dT
+  # Proportion of treatment observations
+  proportion <- n_treatment/n_obs
+  
+  # get the desired sample size
+  sample_size = ((t_stats_alpha-t_power)/MinDE)^2 *(dSigma_sq/(proportion*(1-proportion)))
+  return(round(sample_size))
+}
+
+# Initialize, set sigma and alpha fixed
+dSigma_sq = 1
+dAlpha= 0.05
+dPower = 0.8
+dT = nrow(dfData[dfData$bonus0 == 0,])
+
+dTideal = nrow(dfData)/2
+
+# required sample sizes needed in each treatment group
+sample_required_eq = get_n_eq(dfData=dfData, dT=dT, dAlpha = dAlpha, dPower = dPower, MinDE=0.1, dSigma_sq = dSigma_sq)
+
+sample_required_contr = get_n_eq(dfData=dfData, dT=dTideal, dAlpha = dAlpha, dPower = dPower, MinDE=0.1, dSigma_sq = dSigma_sq)
+
+cat("The minimum sample size required for MDE=10% implied by dataset: ", sample_required_eq, ", \n", "and the minimum sample size with equal proportions:", sample_required_contr)
+```
+
+This result implies that if we improved the proportions of the control and treatment groups by increasing the control group size to be above both the low and high treatment, we could achieve a large reduction in the minimum sample size required for an MDE of 10\%, namely from 3572 to 3140. If we consider the control to be counterfactual to both treatment groups then, we could reduce the required students in the experiment.
 
