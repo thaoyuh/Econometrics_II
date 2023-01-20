@@ -18,6 +18,7 @@ include-in-header:
     \newcommand{\breftable}[1]{Table \textcolor{blue}{\ref{#1}}}
     \newcommand{\breffig}[1]{Figure \textcolor{blue}{\ref{#1}}}
     \usepackage{fancyvrb}
+    \usepackage{dcolumn}
     \usepackage{fvextra}
     \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
       showspaces = false,
@@ -57,10 +58,6 @@ if(!require(pacman)){install.packages("pacman")}
 
 p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
        sampleSelection, quantreg, plm, nlme, knitr,car)
-
-#load data
-#dfData = read.csv("assignment2a_2023.csv")
-#attach(dfData)
 ```
 
 \section{Question 1}
@@ -110,8 +107,6 @@ ATE = (E_diff_purple * 200 + E_diff_blue * 100 + E_diff_green * 100) / 400
 ATE
 ```
 
-
-
 \subsection{(iii)} \label{q1_3}
 
 Compared to the solution in \brefsection{q1_2}, now we consider the average treatment effect among treated (ATET). For this case, we need to modify the previous definition to:
@@ -141,9 +136,6 @@ The ATE measure generally describes the expected gain in $y$ achieved by treatin
 \section{Question 2}
 
 ```{r load data q2, echo=TRUE, results='hide'}
-# Make sure to delete this before handin, just have it as setting working directory
-#setwd("~/GitHub/bds_block3/Econometrics_II/Assignment 3")
-
 dfData = read.csv("bonus.csv")
 attach(dfData)
 
@@ -170,33 +162,31 @@ As we can see from the summary table above, the no reward group saw a 19.5\% pas
 
 \subsection{(ii)} \label{q2_2}
 
-In order to estimate a model with the 2 treatment and 1 control groups, we need to be careful about the model specification. We cannot simply add all three dummy variables as predictors in the model, since the three groups are mutually exclusive and exhaustive so adding all three dummies in the model would cause perfect multicollinearity. Hence we can only use 2 of the 3 variables and the combination of both variables being 0 gives the "third variable". Therefore, we only estimate a model with the two treatment group dummies.
-
 ```{r}
 prob_lm1 <- lm(pass ~ bonus500 + bonus1500, data = dfData)
-```
-
-Looking at the summary statistics for the first model, we can see that the effects of the treatments are not statistically significant. Thus, we cannot say whether the treatment effect has an influence on the students' study achievements or not. This also implies that we cannot say much about the effect of being assigned in one of the treatment or control groups, as the lack of statistical significance hinders us from saying something about the sign of the coefficients, even though the coefficient of \textit{bonus1500} is positive (implying that the treatment might increase the chance of passing all courses in first year).
-
-```{r}
 prob_lm2 <- lm(pass ~ bonus500 + bonus1500 + fyeduc + p0 + math, data = dfData)
-summary(prob_lm2)
+prob_lm3 <- lm(pass ~ bonus500 + bonus1500 + fyeduc + p0 + math +job +effort, data = dfData)
 ```
 
-In the second model, we add 3 additional control variables, namely, father's education \textit{fyeduc}, subjective self-assessment of the pass probability \textit{p0}, and high school math score \textit{math}. However, the significance of the treatment variables \textit{bonus500} and \textit{bonus1500} do not change. Thus, this model also implies like the one above, that the financial incentive does not influence a student's study performance in the first year significantly.
+```{r, echo=TRUE, results='hide'}
+stargazer::stargazer(prob_lm1,prob_lm2,prob_lm3, title="Estimating the effects of treatment on first year pass rate",  align=TRUE, label = "tab_pass", table.placement="H", out = "tab_pass.tex")
+```
+
+\input{tab_pass.tex}
+
+In order to estimate a model with the 2 treatment and 1 control groups, we need to be careful about the model specification. We cannot simply add all three dummy variables as predictors in the model, since the three groups are mutually exclusive and exhaustive so adding all three dummies in the model would cause perfect multicollinearity. Hence we can only use 2 of the 3 variables and the combination of both variables being 0 gives the "third variable". Therefore, we only estimate a model with the two treatment group dummies.
+
+Looking at the summary statistics for the first model in \breftable{tab_pass} in column (1), we can see that the effects of the treatments are not statistically significant. Thus, we cannot say whether the treatment effect has an influence on the students' study achievements or not. This also implies that we cannot say much about the effect of being assigned in one of the treatment or control groups, as the lack of statistical significance hinders us from saying something about the sign of the coefficients, even though the coefficient of \textit{bonus1500} is positive (implying that the treatment might increase the chance of passing all courses in first year).
+
+In the second model, we add 3 additional control variables, namely, father's education \textit{fyeduc}, subjective self-assessment of the pass probability \textit{p0}, and high school math score \textit{math}. The results are presented in \breftable{tab_pass} in column (2). However, the significance of the treatment variables \textit{bonus500} and \textit{bonus1500} do not change. Thus, this model also implies like the one above, that the financial incentive does not influence a student's study performance in the first year significantly.
 
 \subsection{(iii)} \label{q2_3}
-
-```{r}
-prob_lm3 <- lm(pass ~ bonus500 + bonus1500 + fyeduc + p0 + math +job +effort, data = dfData)
-summary(prob_lm3)
-```
 
 In the third model, we include the variable indicating whether a student has a job (\textit{job}) and the average number of study hours (\textit{effort}). 
 
 To comment on this approach, we do not think these two control variables are good addition to the model as it might be correlated with the treatment variables and with each other. For example, the amount of study effort one puts in might correlate with the type of reward they are assign (e.g., a higher reward means more study efforts). On the other hand, if the reward of studying is low, a student might be more incentivised to take up a part-time job, and the fact that a student has a job might lower the average number of hours they put into the study (which is measures in the variable \textit{effort}).
 
-Nevertheless, the model still results in insignificant coefficients for the two treatment dummy variables, implying that the two added variables compared to \brefsection{q2_2} might indeed cause multicollinearity issues as the insignificance might also be attributed to imploded standard errors.
+Nevertheless, the model still results in insignificant coefficients for the two treatment dummy variables as displayed in \breftable{tab_pass} in column (3), implying that the two added variables compared to \brefsection{q2_2} might indeed cause multicollinearity issues as the insignificance might also be attributed to imploded standard errors.
 
 \subsection{(iv)} \label{q2_4}
 
@@ -206,17 +196,21 @@ For this question, we use a linear probability model similar to \brefsection{q2_
 drop_lm <- lm(dropout ~ bonus500 + bonus1500 + math + fyeduc + p0 + effort + job, data=dfData)
 credsYear1_lm <- lm(stp2001 ~ bonus500 + bonus1500 + math + fyeduc + p0 + effort + job, data=dfData)
 credsYear3_ln <- lm(stp2004 ~ bonus500 + bonus1500 + math + fyeduc + p0 + effort + job, data=dfData)
-
-stargazer::stargazer(drop_lm,credsYear1_lm,credsYear3_ln, type = "text")
 ```
 
-The summary shows a clear picture. For all three dependent variables, \textit{dropout} as a measure of whether the student dropped out of the program in model (1) in the table above, \textit{stp2001} and \textit{stp2004} measuring the number of credits collected in the first and in the three years respectively (estimated in model (2) and (3) in the table), only \textit{math} and \textit{effort} being significant, with \textit{p0} significant only for model (2). Thus good high school math score implies lower risk of dropping out and higher amount of credits collected for both first and all years. Furthermore, the amount of effort (number of hours on average) works in a similar fashion, i.e. the more the student studies, the less likely they will be to drop out and the more credits they will achieve. Interestingly, the self-assessed likelihood of success before the program also seems to impact the first year credits positively, which might mean that there is an underlying variable such as motivation connected to this. However, we can also concur that the effect of the financial incentives is not significant, as both \textit{bonus500} and \textit{bonus1500} are insignificant for all three models.
+```{r, echo=TRUE, results='hide'}
+stargazer::stargazer(drop_lm,credsYear1_lm,credsYear3_ln, title="Estimating dropout and credit rates with the previous model", align=TRUE, table.placement="H", label="tab_dropcred", out = "tab_dropcred.tex")
+```
+
+\input{tab_dropcred.tex}
+
+The summary shows a clear picture. For all three dependent variables, \textit{dropout} as a measure of whether the student dropped out of the program in model (1) in \breftable{tab_dropcred}, \textit{stp2001} and \textit{stp2004} measuring the number of credits collected in the first and in the three years respectively (estimated in model (2) and (3) in \breftable{tab_dropcred}), only \textit{math} and \textit{effort} being significant, with \textit{p0} significant only for model (2). Thus good high school math score implies lower risk of dropping out and higher amount of credits collected for both first and all years. Furthermore, the amount of effort (number of hours on average) works in a similar fashion, i.e. the more the student studies, the less likely they will be to drop out and the more credits they will achieve. Interestingly, the self-assessed likelihood of success before the program also seems to impact the first year credits positively, which might mean that there is an underlying variable such as motivation connected to this. However, we can also concur that the effect of the financial incentives is not significant, as both \textit{bonus500} and \textit{bonus1500} are insignificant for all three models.
 
 \subsection{(v)} \label{q2_5}
 
 The minimum detectable effect of this experiment is the measure using the formula:
 
-\begin{equation} \label(eq_mde)
+\begin{equation} \label{eq_mde}
 \begin{aligned}
 MDE = (t_{1-\alpha/2} - t_{1-q}) \sqrt{\frac{1}{p(1-p)}} \sqrt{\frac{\sigma^2}{n}}
 \end{aligned}
@@ -311,15 +305,13 @@ sample_low_required = get_n(df_low_treatment, input_model = Low_treatment,"bonus
 
 sample_high_required = get_n(df_high_treatment, input_model = High_treatment,"bonus1500", dAlpha = dAlpha, dPower = dPower, dSigma_sq = dSigma_sq)
 
-cat("The minimum sample size to detect a 10% point increase in the low reward treatment group is: ", sample_low_required, ", \n", "the minimum sample size to detect a 10% point increase in the high reward treatment group is: ", sample_high_required, ", \n", "and the number of observations in the dataset is:", nrow(dfData))
+cat("The minimum sample size to detect a 10% point increase", "\n", "in the low reward treatment group is: ", sample_low_required, ", \n", "in the high reward treatment group is: ", sample_high_required, ", \n", "and the number of observations in the dataset is:", nrow(dfData))
 ```
 From these results, we can establish that the sample size of the data is just barely achieving the minimum sample size to detect such a change in the dependent variable resulting from the treatment in the low treatment group, and in fact it is just below the minimum sample size to detect such a change in the high treatment group. Hence perhaps it would be interesting to see what would happen to the treatment coefficients if one would increase the sample size slightly.
 
 \subsection{(vii)} \label{q2_7}
 
 Looking at the formula for MDE in \beqref{eq_mde}, fewer students in the experiment mean higher MDE (since $n$ is in denominator). If we want to achieve the same MDE with fewer students, we need to choose the proportion of control versus treatment group such that the term $p(1-p)$ is minimized (since this term is also in the denominator). Taking the derivative of that term with respect to $p$, we find the optimal value of $p = 0.5$ where p is the proportion of treated students. To get $p=0.5$, we indeed need to increase number of students in the control group.
-
-
 
 Do you agree? now we need to relate this with our dataset, do some count functions, then we're done!
 
