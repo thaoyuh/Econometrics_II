@@ -317,9 +317,9 @@ From these results, we can establish that the sample size of the data is just ba
 
 \subsection{(vii)} \label{q2_7}
 
-Looking at the formula for MDE (page 35 of lecture slide), fewer students in the experiment mean higher MDE. If we want to achieve the same MDE with fewer students, we need to choose the proportion of control versus treatment group such that the term $p(1-p)$ is minimized. Taking the derivative of that term with respect to $p$, we find the optimal value of $p = 0.5$
+Looking at the formula for MDE in \beqref{eq_mde}, fewer students in the experiment mean higher MDE (since $n$ is in denominator). If we want to achieve the same MDE with fewer students, we need to choose the proportion of control versus treatment group such that the term $p(1-p)$ is minimized (since this term is also in the denominator). Taking the derivative of that term with respect to $p$, we find the optimal value of $p = 0.5$ where p is the proportion of treated students. To get $p=0.5$, we indeed need to increase number of students in the control group.
 
-in which: p is the proportion of treated students. To get $p=0.5$, we indeed need to increase number of students in control group.
+
 
 Do you agree? now we need to relate this with our dataset, do some count functions, then we're done!
 
