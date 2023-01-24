@@ -1,0 +1,140 @@
+---
+title: "Assignment 4"
+author: "David Gyaraki, Thao Le"
+format: pdf
+pdf:
+  documentclass: article
+  cite-method: biblatex
+editor: visual
+include-in-header:
+  text: |
+    \addtokomafont{disposition}{\rmfamily}
+    \usepackage{amsmath}
+    \newcommand{\bm}{\symbf}
+    \newcommand{\T}{\text{T}}
+    \newcommand{\pl}{\text{plim}}
+    \newcommand{\brefsection}[1]{Section \textcolor{blue}{\ref{#1}}}
+    \newcommand{\beqref}[1]{Equation \textcolor{blue}{\eqref{#1}}}
+    \newcommand{\breftable}[1]{Table \textcolor{blue}{\ref{#1}}}
+    \newcommand{\breffig}[1]{Figure \textcolor{blue}{\ref{#1}}}
+    \usepackage{fancyvrb}
+    \usepackage{dcolumn}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+pdf-engine: xelatex
+cap-location: top
+toc: true
+toc-title: Contents
+number-sections: true
+mainfont: Arial
+setspace:
+  linestretch: 1.25
+fig-align: center
+table-align: center
+fig-pos: H
+table-pos: H
+execute:
+  echo: true
+  warning: false
+  eval: true
+code-line-numbers: false
+colorlinks: true
+code-block-bg: darkgray
+df-print: default
+highlight-style: arrow-dark
+biblio-title: References
+---
+
+\clearpage
+
+```{r setup q1, echo=TRUE, results='hide'}
+# load packages
+if(!require(pacman)){install.packages("pacman")}
+
+p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
+       sampleSelection, quantreg, plm, nlme, knitr,car)
+```
+
+\section{Question 1}
+
+
+
+
+\subsection{(i)} \label{q1_1}
+
+
+
+
+\subsection{(ii)} \label{q1_2}
+
+
+
+
+\subsection{(iii)} \label{q1_3}
+
+
+
+
+\section{Question 2}
+
+
+
+
+\subsection{(i)} \label{q2_1}
+
+
+
+
+\subsection{(ii)} \label{q2_2}
+
+
+
+
+\subsection{(iii)} \label{q2_3}
+
+
+
+
+
+\section{Question 3}
+
+
+
+\subsection{(i)} \label{q3_1}
+
+
+
+\subsection{(ii)} \label{q3_2}
+
+
+
+
+\subsection{(iii)} \label{q3_3}
+
+
+
+
+
+\subsection{(iv)} \label{q3_4}
+
+
+
+
+\subsection{(v)} \label{q3_5}
+
+
+
+
+\subsection{(vi)} \label{q3_6}
+
+
+
+\subsection{(vii)} \label{q3_7}
+
+
+
