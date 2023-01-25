@@ -93,38 +93,99 @@ We can treat the following problem as follows: $Y_i$ is the outcome
 \section{Question 2}
 
 
-
-
 \subsection{(i)} \label{q2_1}
+From what is given, we have $MDE = 0.1$, the power $p=0.7$, the proportion of students in control group is $p=0.5$. Assume the variance $\sigma^2=1$ To get the number of students the teacher should include in the experiment, we use the following formula:
 
+\begin{gather} \label{eq_nmin}
+\begin{aligned}
+n &= \biggl( \frac{t_{1-\alpha/2} - t_{1-q}}{MDE} \biggl)^2 \frac{\sigma^2}{p(1-p)}\\
+&= \biggl( \frac{1.960 + 0.524}{0.1} \biggl)^2 \frac{1}{0.5(1-0.5)}\\
+&\approx 2468
+\end{aligned}
+\end{gather}
 
-
-
+Thus, the teacher should include at least 2468 students in the experiment.
 \subsection{(ii)} \label{q2_2}
+This will change the proportion of students in treatment to $p=0.5 \times 20\% = 0.1$, using the formula in \beqref{eq_nmin}, the number of students required to participate in the experiment is:
 
+\begin{gather}
+\begin{aligned}
+n &= \biggl( \frac{1.960 + 0.524}{0.1} \biggl)^2 \frac{1}{0.1(1-0.9)}\\
+&\approx 6856
+\end{aligned}
+\end{gather}
 
-
-
+Thus, the number of students required to participate in the experiment increases by $6856-2468=4388$ students.
 \subsection{(iii)} \label{q2_3}
-
-
-
-
 
 \section{Question 3}
 
 
-
 \subsection{(i)} \label{q3_1}
 
+```{r}
+# Load data
+dfData = read.csv("AngristEvans80.csv")
+attach(dfData)
 
+# Fraction of girls among the first born child
+count_girl1 = table(dfData$SEXK)
+fraction_girl1= count_girl1[[2]]/(count_girl1[[1]]+count_girl1[[2]])
+
+# Fraction of girls among the second born child
+count_girl2 = table(dfData$SEX2ND)
+fraction_girl2= count_girl2[[2]]/(count_girl2[[1]]+count_girl2[[2]])
+
+cat("Fraction of girls among the first born child is: ",fraction_girl1,"\n", "Fraction of girls among the second born child is: ",fraction_girl2)
+```
+
+```{r}
+#Regress gender of second child on gender of first child
+lm_second_first = lm(SEX2ND~SEXK, data = dfData)
+summary(lm_second_first)
+```
 
 \subsection{(ii)} \label{q3_2}
+```{r}
+# First stage regression
+lm_first_stage = lm(CHILD3 ~ SAMESEX, data= dfData)
+summary(lm_first_stage)
+```
+Is the instrumental variable sufficiently strong? => yes
 
-
+```{r}
+# Regress number of children on whether the first two children have the same gender
+lm_total = lm(KIDCOUNT ~ SAMESEX, data= dfData)
+summary(lm_total)
+```
 
 
 \subsection{(iii)} \label{q3_3}
+In this study, the treatment group includes those who have a third child and the control group includes those who have two children or less. The variables that affect decision for mothers to be assigned into treatment or control group is $Z= SAMESEX$, indicating whether the first two child are of the same sex or not.
+
+The always takers are those who have a third child regardless of whether the first two children is of the same sex or not.
+```{r}
+df_always = dfData[dfData$CHILD3 == 1,]
+cat("The share of always takers is: ", nrow(df_always)/nrow(dfData))
+```
+
+The compliers are those who only have a third child if the first two kids are of the same sex.
+```{r}
+df_compliers1 = dfData[dfData$CHILD3 == 1 & dfData$SAMESEX == 1,]
+df_compliers0 = dfData[dfData$CHILD3 == 0 & dfData$SAMESEX == 0,]
+cat("The share of compliers is: ", (nrow(df_compliers1)+nrow(df_compliers0))/nrow(dfData))
+```
+The never takers are those who will never have the third child regardless of whether the first two chidren are of the same sex or not.
+```{r}
+df_never = dfData[dfData$CHILD3 == 0,]
+cat("The share of never takers is: ", nrow(df_never)/nrow(dfData))
+```
+Lastly, the defiers are those who will have a third child if the first two kids are of different sexes and will not have a third child if the first two kids are of the same sex.
+```{r}
+df_defier1 = dfData[dfData$CHILD3 == 1 & dfData$SAMESEX == 0,]
+df_defier0 = dfData[dfData$CHILD3 == 0 & dfData$SAMESEX == 1,]
+cat("The share of defiers is: ", (nrow(df_defier1)+nrow(df_defier0))/nrow(dfData))
+```
 
 
 
