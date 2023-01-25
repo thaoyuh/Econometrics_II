@@ -62,12 +62,22 @@ p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
 
 \section{Question 1}
 
-
-
+\begin{table}[H] \centering
+\begin{tabular}{l|cc|cc}
+\hline
+\hline
+Judge  & \multicolumn{2}{c}{Jones} & \multicolumn{2}{c}{Smith} \\
+Sentences       & Prison             & Other            & Prison        & Other          \\ \hline
+Cases & 70\%                 & 30\%                & 40\%                & 60\%                \\
+Future arrests   & 40\%                  & 60\%                 & 20\%               & 50\%             \\
+\hline
+\hline
+\end{tabular}
+\end{table}
 
 \subsection{(i)} \label{q1_1}
 
-
+We can treat the following problem as follows: $Y_i$ is the outcome 
 
 
 \subsection{(ii)} \label{q1_2}
