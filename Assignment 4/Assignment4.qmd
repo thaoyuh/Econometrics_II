@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4"
-author: "David Gyaraki, Thao Le"
+author: "Come Up With a Group Name"
 format: pdf
 pdf:
   documentclass: article
@@ -94,24 +94,24 @@ We can treat the following problem as follows: $Y_i$ is the outcome
 
 
 \subsection{(i)} \label{q2_1}
-From what is given, we have $MDE = 0.1$, the power $p=0.7$, the proportion of students in control group is $p=0.5$. Assume the variance $\sigma^2=1$ To get the number of students the teacher should include in the experiment, we use the following formula:
+From what is given, we have $MDE = 0.1$, the power $p=0.7$, the proportion of students in control group is $p=0.5$. The variance of the binomial variable is $\sigma^2=p(1-p)=0.25$ To get the number of students the teacher should include in the experiment, we use the following formula:
 
 \begin{gather} \label{eq_nmin}
 \begin{aligned}
 n &= \biggl( \frac{t_{1-\alpha/2} - t_{1-q}}{MDE} \biggl)^2 \frac{\sigma^2}{p(1-p)}\\
-&= \biggl( \frac{1.960 + 0.524}{0.1} \biggl)^2 \frac{1}{0.5(1-0.5)}\\
-&\approx 2468
+&= \biggl( \frac{1.960 + 0.524}{0.1} \biggl)^2 \frac{0.25}{0.5(1-0.5)}\\
+&\approx 617
 \end{aligned}
 \end{gather}
 
-Thus, the teacher should include at least 2468 students in the experiment.
+Thus, the teacher should include at least 617 students in the experiment.
 \subsection{(ii)} \label{q2_2}
 This will change the proportion of students in treatment to $p=0.5 \times 20\% = 0.1$, using the formula in \beqref{eq_nmin}, the number of students required to participate in the experiment is:
 
 \begin{gather}
 \begin{aligned}
-n &= \biggl( \frac{1.960 + 0.524}{0.1} \biggl)^2 \frac{1}{0.1(1-0.9)}\\
-&\approx 6856
+n &= \biggl( \frac{1.960 + 0.524}{0.1} \biggl)^2 \frac{0.25}{0.1(1-0.1)}\\
+&\approx 1713
 \end{aligned}
 \end{gather}
 
