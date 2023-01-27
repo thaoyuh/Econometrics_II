@@ -57,7 +57,7 @@ biblio-title: References
 if(!require(pacman)){install.packages("pacman")}
 
 p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
-       sampleSelection, quantreg, plm, nlme, knitr,car)
+       sampleSelection, quantreg, plm, nlme, knitr,car, ivreg,stargazer)
 ```
 
 \section{Question 1}
@@ -165,7 +165,7 @@ In this study, the treatment group includes those who have a third child and the
 
 The always takers are those who have a third child regardless of whether the first two children is of the same sex or not.
 ```{r}
-df_always = dfData[dfData$CHILD3 == 1,]
+df_always = dfData[dfData$CHILD3 == 1 & dfData$SAMESEX == 0,]
 cat("The share of always takers is: ", nrow(df_always)/nrow(dfData))
 ```
 
@@ -177,35 +177,88 @@ cat("The share of compliers is: ", (nrow(df_compliers1)+nrow(df_compliers0))/nro
 ```
 The never takers are those who will never have the third child regardless of whether the first two chidren are of the same sex or not.
 ```{r}
-df_never = dfData[dfData$CHILD3 == 0,]
+df_never = dfData[dfData$CHILD3 == 0 & dfData$SAMESEX == 1,]
 cat("The share of never takers is: ", nrow(df_never)/nrow(dfData))
 ```
-Lastly, the defiers are those who will have a third child if the first two kids are of different sexes and will not have a third child if the first two kids are of the same sex.
-```{r}
-df_defier1 = dfData[dfData$CHILD3 == 1 & dfData$SAMESEX == 0,]
-df_defier0 = dfData[dfData$CHILD3 == 0 & dfData$SAMESEX == 1,]
-cat("The share of defiers is: ", (nrow(df_defier1)+nrow(df_defier0))/nrow(dfData))
-```
-
-
-
+Lastly, the defiers are those who will have a third child if the first two kids are of different sexes and will not have a third child if the first two kids are of the same sex. We cannot observe this as they are divided among the always taker and never taker's group.
 
 
 \subsection{(iv)} \label{q3_4}
+```{r}
+iv_reg_hour <- ivreg(HOURSM ~ CHILD3 | SAMESEX, data = dfData)
+iv_reg_income <- ivreg(INCOME1M ~ CHILD3 | SAMESEX, data = dfData)
 
-
+stargazer(iv_reg_hour, iv_reg_income,
+          type="text", report="vc*stp",
+          keep.stat=c("n","adj.rsq"),
+          title = "...") #remember to change title
+```
 
 
 \subsection{(v)} \label{q3_5}
+```{r}
+# Subgroup 1: Always taker
+hour1=mean(df_always$HOURSM)
+income1=mean(df_always$INCOME1M)
+cat("The mean working hour of always takers is: ", hour1, ", the mean income of always takers is: ",income1)
+```
+```{r}
+# Subgroup 2: never takers
+hour2=mean(df_never$HOURSM)
+income2=mean(df_never$INCOME1M)
+cat("The mean working hour of never takers is: ", hour2, ", the mean income of never takers is: ",income2)
+```
+```{r}
+# Subgroup 3: complier 1
+hour3=mean(df_compliers1$HOURSM)
+income3=mean(df_compliers1$INCOME1M)
+cat("The mean working hour of complier in treatment group is: ", hour3, ", the mean income of this group is: ",income3)
+```
+```{r}
+# Subgroup 4: complier 0
+hour4=mean(df_compliers0$HOURSM)
+income4=mean(df_compliers0$INCOME1M)
+cat("The mean working hour of complier in control group is: ", hour4, ", the mean income of this group is: ",income4)
+```
 
-
-
+To-dos: USE these means to say something about the preference of having a third child
 
 \subsection{(vi)} \label{q3_6}
 
 
 
 \subsection{(vii)} \label{q3_7}
+First, we stratify the sample by gender of the first child:
+```{r }
+df_first_girl = dfData[dfData$SEXK == 1,]
+df_first_boy = dfData[dfData$SEXK == 0,]
+```
 
 
+(But they ask to use the first stage result?) I try to to it manually below:
 
+```{r}
+# First stage regression
+lm_1st_girl = lm(CHILD3 ~ SAMESEX, data=df_first_girl)
+lm_1st_boy = lm(CHILD3 ~ SAMESEX, data=df_first_boy)
+stargazer(lm_1st_girl, lm_1st_boy,
+          type="text", report="vc*stp",
+          keep.stat=c("n","adj.rsq"),
+          title = "...") #remember to change title
+
+```
+If the first child is a girl and first two children are of the same sex, one is more likely to have a third child.
+
+Then, we perform instrumental variable regressions:
+```{r}
+iv_reg_girl_hour <- ivreg(HOURSM ~ CHILD3 | SAMESEX, data = df_first_girl)
+iv_reg_girl_income <- ivreg(INCOME1M ~ CHILD3 | SAMESEX, data = df_first_girl)
+iv_reg_boy_hour <- ivreg(HOURSM ~ CHILD3 | SAMESEX, data = df_first_boy)
+iv_reg_boy_income <- ivreg(INCOME1M ~ CHILD3 | SAMESEX, data = df_first_boy)
+stargazer(iv_reg_girl_hour, iv_reg_girl_income,iv_reg_boy_hour,iv_reg_boy_income,
+          type="text", report="vc*stp",
+          keep.stat=c("n","adj.rsq"),
+          title = "...") #remember to change title
+
+```
+Here we see that if the first child is a girl, having a third child does not significantly influence the hour and income.
