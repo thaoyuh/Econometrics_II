@@ -77,7 +77,7 @@ Future arrests   & 40\%                  & 60\%                 & 20\%          
 
 \subsection{(i)} \label{q1_1}
 
-We can treat the following problem as follows: $Y_i$ is the outcome of whether an individual is arrested later. The instrument variable $Z_i$ is which judge they are assigned to in the first case and $D_i$ is the treatment whether the individual is sentenced to prison or not in the first case. Then the Wald estimator can be calculated by:
+We can treat the following problem as follows: $Y_i$ is the outcome of whether an individual is arrested later. The instrument variable $Z_i$ is which judge they are assigned to in the first case and $D_i$ is the treatment whether the individual is sentenced to prison or not in the first case. Assuming monotonity, the Wald estimator can be calculated by:
 
 \begin{equation}
 \begin{aligned}
