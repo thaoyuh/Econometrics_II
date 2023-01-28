@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4"
-author: "Come Up With a Group Name"
+author: "Group name: Foodies with hoodies"
 format: pdf
 pdf:
   documentclass: article
@@ -77,24 +77,36 @@ Future arrests   & 40\%                  & 60\%                 & 20\%          
 
 \subsection{(i)} \label{q1_1}
 
-We can treat the following problem as follows: $Y_i$ is the outcome 
+We can treat the following problem as follows: $Y_i$ is the outcome of whether an individual is arrested later. The instrument variable $Z_i$ is which judge they are assigned to in the first case and $D_i$ is the treatment whether the individual is sentenced to prison or not in the first case. Then the Wald estimator can be calculated by:
 
+\begin{equation}
+\begin{aligned}
+\delta_{Wald} = \frac{E[Y_i | Z_i = 1] - E[Y_i | Z_i = 0]}{Pr(D_i = 1 | Z_i = 1) - Pr(D_i = 1 | Z_i = 0)}
+\end{aligned}
+\end{equation}
+
+If we suppose that $Z_i = 1$ for Judge Jones, and $Z_i = 0$ for Judge Smith, we can calculate the Wald estimator in the following way:
+
+\begin{equation}
+\begin{aligned}
+\delta_{Wald} = \frac{40 - 20}{70 - 40} = \frac{2}{3}
+\end{aligned}
+\end{equation}
 
 \subsection{(ii)} \label{q1_2}
 
-
-
+In this case, the interpretation of the estimated effect of $0.667$ is that the treatment difference between the groups leads to $66.7%$ increase in the chance that someone who has been sentenced to prison by Judge Jones will be arrested and sent to prison again compared to the ones sentenced by Judge Smith. However, we only examine the ones who have been involved in a case and sentenced to prison, so this only applies to the part of the population who have been arrested at least once. 
 
 \subsection{(iii)} \label{q1_3}
 
-
-
+In this case, the always takers of the group are the ones who would be caught and arrested later no matter if they would have been sentenced to prison or not in their first case. That means that the portion of the population who are arrested in the future and sent to prison, which is $20%$ in the case of Judge Smith and $40%$ in the case of Judge Jones. We do not need to know how many of these were sent to prison in their first case and how many were not, because they are the ones who would be sent to prison one way or another.
 
 \section{Question 2}
 
-
 \subsection{(i)} \label{q2_1}
+
 From what is given, we have $MDE = 0.1$, the power $p=0.7$, the proportion of students in control group is $p=0.5$. The variance of the binomial variable is $\sigma^2=p(1-p)=0.25$ To get the number of students the teacher should include in the experiment, we use the following formula:
+
 
 \begin{gather} \label{eq_nmin}
 \begin{aligned}
@@ -105,7 +117,9 @@ n &= \biggl( \frac{t_{1-\alpha/2} - t_{1-q}}{MDE} \biggl)^2 \frac{\sigma^2}{p(1-
 \end{gather}
 
 Thus, the teacher should include at least 617 students in the experiment.
+
 \subsection{(ii)} \label{q2_2}
+
 This will change the proportion of students in treatment to $p=0.5 \times 20\% = 0.1$, using the formula in \beqref{eq_nmin}, the number of students required to participate in the experiment is:
 
 \begin{gather}
@@ -115,11 +129,10 @@ n &= \biggl( \frac{1.960 + 0.524}{0.1} \biggl)^2 \frac{0.25}{0.1(1-0.1)}\\
 \end{aligned}
 \end{gather}
 
+
 Thus, the number of students required to participate in the experiment increases by $6856-2468=4388$ students.
-\subsection{(iii)} \label{q2_3}
 
 \section{Question 3}
-
 
 \subsection{(i)} \label{q3_1}
 
@@ -146,12 +159,14 @@ summary(lm_second_first)
 ```
 
 \subsection{(ii)} \label{q3_2}
+
 ```{r}
 # First stage regression
 lm_first_stage = lm(CHILD3 ~ SAMESEX, data= dfData)
 summary(lm_first_stage)
 ```
-Is the instrumental variable sufficiently strong? => yes
+
+Is the instrumental variable sufficiently strong? =\> yes
 
 ```{r}
 # Regress number of children on whether the first two children have the same gender
@@ -159,31 +174,36 @@ lm_total = lm(KIDCOUNT ~ SAMESEX, data= dfData)
 summary(lm_total)
 ```
 
-
 \subsection{(iii)} \label{q3_3}
+
 In this study, the treatment group includes those who have a third child and the control group includes those who have two children or less. The variables that affect decision for mothers to be assigned into treatment or control group is $Z= SAMESEX$, indicating whether the first two child are of the same sex or not.
 
 The always takers are those who have a third child regardless of whether the first two children is of the same sex or not.
+
 ```{r}
 df_always = dfData[dfData$CHILD3 == 1 & dfData$SAMESEX == 0,]
 cat("The share of always takers is: ", nrow(df_always)/nrow(dfData))
 ```
 
 The compliers are those who only have a third child if the first two kids are of the same sex.
+
 ```{r}
 df_compliers1 = dfData[dfData$CHILD3 == 1 & dfData$SAMESEX == 1,]
 df_compliers0 = dfData[dfData$CHILD3 == 0 & dfData$SAMESEX == 0,]
 cat("The share of compliers is: ", (nrow(df_compliers1)+nrow(df_compliers0))/nrow(dfData))
 ```
+
 The never takers are those who will never have the third child regardless of whether the first two chidren are of the same sex or not.
+
 ```{r}
 df_never = dfData[dfData$CHILD3 == 0 & dfData$SAMESEX == 1,]
 cat("The share of never takers is: ", nrow(df_never)/nrow(dfData))
 ```
+
 Lastly, the defiers are those who will have a third child if the first two kids are of different sexes and will not have a third child if the first two kids are of the same sex. We cannot observe this as they are divided among the always taker and never taker's group.
 
-
 \subsection{(iv)} \label{q3_4}
+
 ```{r}
 iv_reg_hour <- ivreg(HOURSM ~ CHILD3 | SAMESEX, data = dfData)
 iv_reg_income <- ivreg(INCOME1M ~ CHILD3 | SAMESEX, data = dfData)
@@ -194,26 +214,29 @@ stargazer(iv_reg_hour, iv_reg_income,
           title = "...") #remember to change title
 ```
 
-
 \subsection{(v)} \label{q3_5}
+
 ```{r}
 # Subgroup 1: Always taker
 hour1=mean(df_always$HOURSM)
 income1=mean(df_always$INCOME1M)
 cat("The mean working hour of always takers is: ", hour1, ", the mean income of always takers is: ",income1)
 ```
+
 ```{r}
 # Subgroup 2: never takers
 hour2=mean(df_never$HOURSM)
 income2=mean(df_never$INCOME1M)
 cat("The mean working hour of never takers is: ", hour2, ", the mean income of never takers is: ",income2)
 ```
+
 ```{r}
 # Subgroup 3: complier 1
 hour3=mean(df_compliers1$HOURSM)
 income3=mean(df_compliers1$INCOME1M)
 cat("The mean working hour of complier in treatment group is: ", hour3, ", the mean income of this group is: ",income3)
 ```
+
 ```{r}
 # Subgroup 4: complier 0
 hour4=mean(df_compliers0$HOURSM)
@@ -225,15 +248,14 @@ To-dos: USE these means to say something about the preference of having a third 
 
 \subsection{(vi)} \label{q3_6}
 
-
-
 \subsection{(vii)} \label{q3_7}
+
 First, we stratify the sample by gender of the first child:
+
 ```{r }
 df_first_girl = dfData[dfData$SEXK == 1,]
 df_first_boy = dfData[dfData$SEXK == 0,]
 ```
-
 
 (But they ask to use the first stage result?) I try to to it manually below:
 
@@ -247,9 +269,11 @@ stargazer(lm_1st_girl, lm_1st_boy,
           title = "...") #remember to change title
 
 ```
+
 If the first child is a girl and first two children are of the same sex, one is more likely to have a third child.
 
 Then, we perform instrumental variable regressions:
+
 ```{r}
 iv_reg_girl_hour <- ivreg(HOURSM ~ CHILD3 | SAMESEX, data = df_first_girl)
 iv_reg_girl_income <- ivreg(INCOME1M ~ CHILD3 | SAMESEX, data = df_first_girl)
@@ -261,4 +285,5 @@ stargazer(iv_reg_girl_hour, iv_reg_girl_income,iv_reg_boy_hour,iv_reg_boy_income
           title = "...") #remember to change title
 
 ```
+
 Here we see that if the first child is a girl, having a third child does not significantly influence the hour and income.
