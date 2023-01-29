@@ -253,7 +253,7 @@ We can use these means to confirm our results from \brefsection{q3_4}, namely th
 
 \subsection{(vi)} \label{q3_6}
 
-This selection 
+This selection does not concur with a potential bias in the OLS regression when regressing the labour market outcome variables on having a third child. It seems that the treatment groups in having a third child or not do not differ too much, implying that even though we may find a good instrument on the \textit{CHILD3} variable, since the two groups without third child and the two groups with third child have relatively similar outcome means respectively, simply an OLS model with $HOURSM \sim CHILD3$ or $INCOME1M \sim CHILD3$ would not have an underlying heterogeneity bias or bias due to omitting \textit{SAMESEX}.
 
 \subsection{(vii)} \label{q3_7}
 
@@ -264,7 +264,7 @@ df_first_girl = dfData[dfData$SEXK == 1,]
 df_first_boy = dfData[dfData$SEXK == 0,]
 ```
 
-(But they ask to use the first stage result?) I try to to it manually below:
+Then we conduct a simple OLS regression for the would-be first stage, similarly to \brefsection{q3_2} on the subset of observations where the first child is female and the other subset where the first child is male.
 
 ```{r}
 # First stage regression
@@ -273,13 +273,10 @@ lm_1st_boy = lm(CHILD3 ~ SAMESEX, data=df_first_boy)
 stargazer(lm_1st_girl, lm_1st_boy,
           type="text", report="vc*stp",
           keep.stat=c("n","adj.rsq"),
-          title = "...") #remember to change title
-
+          title = "Subset first stage OLS on (1) first child girl and (2) first child boy") 
 ```
 
-If the first child is a girl and first two children are of the same sex, one is more likely to have a third child.
-
-Then, we perform instrumental variable regressions:
+Interestingly, although we find that the treatment is significant in predicting the probability of a third child for both subgroups, if the first child is a girl and first two children are of the same sex, one is more likely to have a third child. This implies that the parents with two girls as first children have a stronger preference for a third child, while parents with two boys as first children, albeit still more likely to have a third child, have a weaker preference. Subsequently, we perform instrumental variable regressions:
 
 ```{r}
 iv_reg_girl_hour <- ivreg(HOURSM ~ CHILD3 | SAMESEX, data = df_first_girl)
@@ -293,4 +290,4 @@ stargazer(iv_reg_girl_hour, iv_reg_girl_income,iv_reg_boy_hour,iv_reg_boy_income
 
 ```
 
-Here we see that if the first child is a girl, having a third child does not significantly influence the hour and income.
+Here we find very interesting results. We observe that if the first child is a girl, having a third child does not significantly influence the hour and income, while if the first child is a boy, having a third child will significantly reduce both working hours and annual income, even more than previously in \brefsection{q3_4}, with an estimated 6.695 hours of decrease in weekly working hours and an estimated 1320.535 \$ decrease in annual income. Therefore these results hint at strong heterogeneity in the effect of having a third child on labour statistics in terms of the gender of the children.
