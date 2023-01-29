@@ -69,7 +69,7 @@ p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,
 Judge  & \multicolumn{2}{c}{Jones} & \multicolumn{2}{c}{Smith} \\
 Sentences       & Prison             & Other            & Prison        & Other          \\ \hline
 Cases & 70\%                 & 30\%                & 40\%                & 60\%                \\
-Future arrests   & 40\%                  & 60\%                 & 20\%               & 50\%             \\
+Future arrests (of those who were sentenced to prison in the first case)  & 40\%                  & 60\%                 & 20\%               & 50\%             \\
 \hline
 \hline
 \end{tabular}
@@ -89,13 +89,13 @@ If we suppose that $Z_i = 1$ for Judge Jones, and $Z_i = 0$ for Judge Smith, we 
 
 \begin{equation}
 \begin{aligned}
-\delta_{Wald} = \frac{40 - 20}{70 - 40} = \frac{2}{3}
+\delta_{Wald} = \frac{0.7\*40 - 0.4\*20}{70 - 40} = \frac{2}{3}
 \end{aligned}
 \end{equation}
 
 \subsection{(ii)} \label{q1_2}
 
-In this case, the interpretation of the estimated effect of $0.667$ is that the treatment difference between the groups leads to $66.7\%$ increase in the chance that someone who has been sentenced to prison by Judge Jones will be arrested and sent to prison again compared to the ones sentenced by Judge Smith. However, we only examine the ones who have been involved in a case and sentenced to prison, so this only applies to the part of the population who have been arrested at least once. 
+In this case, the interpretation of the estimated effect of $0.667$ is that the treatment difference between the groups leads to $66.7\%$ increase in the chance that someone who has been sentenced to prison by Judge Jones will be arrested and sent to prison again compared to the ones sentenced by Judge Smith. However, we only examine the ones who have been involved in a case and sentenced to prison, so this only applies to the part of the population who have been arrested at least once (70\% in the case of Judge Jones and 40\% in the case of Judge Smith). 
 
 \subsection{(iii)} \label{q1_3}
 
