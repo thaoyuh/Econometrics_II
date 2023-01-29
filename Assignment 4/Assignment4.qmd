@@ -95,11 +95,11 @@ If we suppose that $Z_i = 1$ for Judge Jones, and $Z_i = 0$ for Judge Smith, we 
 
 \subsection{(ii)} \label{q1_2}
 
-In this case, the interpretation of the estimated effect of $0.667$ is that the treatment difference between the groups leads to $66.7%$ increase in the chance that someone who has been sentenced to prison by Judge Jones will be arrested and sent to prison again compared to the ones sentenced by Judge Smith. However, we only examine the ones who have been involved in a case and sentenced to prison, so this only applies to the part of the population who have been arrested at least once. 
+In this case, the interpretation of the estimated effect of $0.667$ is that the treatment difference between the groups leads to $66.7\%$ increase in the chance that someone who has been sentenced to prison by Judge Jones will be arrested and sent to prison again compared to the ones sentenced by Judge Smith. However, we only examine the ones who have been involved in a case and sentenced to prison, so this only applies to the part of the population who have been arrested at least once. 
 
 \subsection{(iii)} \label{q1_3}
 
-In this case, the always takers of the group are the ones who would be caught and arrested later no matter if they would have been sentenced to prison or not in their first case. That means that the portion of the population who are arrested in the future and sent to prison, which is $20%$ in the case of Judge Smith and $40%$ in the case of Judge Jones. We do not need to know how many of these were sent to prison in their first case and how many were not, because they are the ones who would be sent to prison one way or another.
+In this case, the always takers of the group are the ones who would be caught and arrested later no matter if they would have been sentenced to prison or not in their first case. That means that the portion of the population who are arrested in the future and sent to prison, which is $20\%$ in the case of Judge Smith and $40\%$ in the case of Judge Jones. We do not need to know how many of these were sent to prison in their first case and how many were not, because they are the ones who would be sent to prison one way or another.
 
 \section{Question 2}
 
@@ -157,6 +157,7 @@ cat("Fraction of girls among the first born child is: ",fraction_girl1,"\n", "Fr
 lm_second_first = lm(SEX2ND~SEXK, data = dfData)
 summary(lm_second_first)
 ```
+To briefly comment on the results, the output shows a relatively similar proportion of genders among first and second babies as well. This is relatively expected since we did not manipulate the composition of the data and the natural trend is that there are slightly more male than female children born in the population. Furthermore the regression results imply that the gender of the first child is a strong predictor of the gender of the second child, namely if the first child is a girl, there is a stronger probability that the second child will also be a girl. This outcome is slightly more interesting, showing that the outcome of the gender of the first and second children are not necessarily independent.
 
 \subsection{(ii)} \label{q3_2}
 
@@ -166,13 +167,15 @@ lm_first_stage = lm(CHILD3 ~ SAMESEX, data= dfData)
 summary(lm_first_stage)
 ```
 
-Is the instrumental variable sufficiently strong? =\> yes
+The instrumental variable is sufficiently strong, because the variable \textit{SAMESEX} has a strongly significant explanatory power over whether the third child is born. This means that the instrumental variable (IV) can be used in a 2SLS model provided that it is not correlated with the second stage dependent variable.
 
 ```{r}
 # Regress number of children on whether the first two children have the same gender
 lm_total = lm(KIDCOUNT ~ SAMESEX, data= dfData)
 summary(lm_total)
 ```
+
+The first model already implied that the \textit{SAMESEX} is a strong instrument for whether a third child is born. Continuing along this logic, we also find that the IV is a strong instrument for the total number of children, implying that the "treatment" of having same sex children for the first two kids significantly increases the number of children and in particular the chance of a third child being born.
 
 \subsection{(iii)} \label{q3_3}
 
@@ -193,7 +196,7 @@ df_compliers0 = dfData[dfData$CHILD3 == 0 & dfData$SAMESEX == 0,]
 cat("The share of compliers is: ", (nrow(df_compliers1)+nrow(df_compliers0))/nrow(dfData))
 ```
 
-The never takers are those who will never have the third child regardless of whether the first two chidren are of the same sex or not.
+The never takers are those who will never have the third child regardless of whether the first two children are of the same sex or not.
 
 ```{r}
 df_never = dfData[dfData$CHILD3 == 0 & dfData$SAMESEX == 1,]
@@ -213,6 +216,8 @@ stargazer(iv_reg_hour, iv_reg_income,
           keep.stat=c("n","adj.rsq"),
           title = "...") #remember to change title
 ```
+
+Conducting the IV regression with estimating the \textit{CHILD3} variable with \textit{SAMESEX}, we find that having a third child significantly reduces (1) the mother's weekly hours of work (\textit{HOURSM}) by an approximate 3.585 hours and that in model (2) significantly reduces the mother's annual income as well (\textit{INCOME1M}), by an estimated 786.8 \$ per year. 
 
 \subsection{(v)} \label{q3_5}
 
@@ -244,9 +249,11 @@ income4=mean(df_compliers0$INCOME1M)
 cat("The mean working hour of complier in control group is: ", hour4, ", the mean income of this group is: ",income4)
 ```
 
-To-dos: USE these means to say something about the preference of having a third child
+We can use these means to confirm our results from \brefsection{q3_4}, namely that having a third child will reduce the annual income and weekly hours of the mother. We can also see the magnitude differences being relatively similar to the estimated effects. Compliers also change along with their decision, compliers in the control group (only 2 children with different genders) have similar group means to the never takers (always 2 children regardless of the gender being the same), while compliers in the treatment group (first two children same gender, hence had a third child) resemble to the always takers group. Therefore, this implies that it is not necessarily the treatment but rather simply the preference to have a third child or not will be important for the dependent variables in the model (and this might also imply that the treatment variable is a good instrument due to seemingly no correlation with the dependent variables).
 
 \subsection{(vi)} \label{q3_6}
+
+This selection 
 
 \subsection{(vii)} \label{q3_7}
 
