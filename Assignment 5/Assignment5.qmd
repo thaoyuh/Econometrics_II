@@ -1,0 +1,149 @@
+---
+title: "Assignment 5"
+author: "Group name: Foodies with hoodies"
+format: pdf
+pdf:
+  documentclass: article
+  cite-method: biblatex
+editor: visual
+include-in-header:
+  text: |
+    \addtokomafont{disposition}{\rmfamily}
+    \usepackage{amsmath}
+    \newcommand{\bm}{\symbf}
+    \newcommand{\T}{\text{T}}
+    \newcommand{\pl}{\text{plim}}
+    \newcommand{\brefsection}[1]{Section \textcolor{blue}{\ref{#1}}}
+    \newcommand{\beqref}[1]{Equation \textcolor{blue}{\eqref{#1}}}
+    \newcommand{\breftable}[1]{Table \textcolor{blue}{\ref{#1}}}
+    \newcommand{\breffig}[1]{Figure \textcolor{blue}{\ref{#1}}}
+    \usepackage{fancyvrb}
+    \usepackage{dcolumn}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+pdf-engine: xelatex
+cap-location: top
+toc: true
+toc-title: Contents
+number-sections: true
+mainfont: Arial
+setspace:
+  linestretch: 1.25
+fig-align: center
+table-align: center
+fig-pos: H
+table-pos: H
+execute:
+  echo: true
+  warning: false
+  eval: true
+code-line-numbers: false
+colorlinks: true
+code-block-bg: darkgray
+df-print: default
+highlight-style: arrow-dark
+biblio-title: References
+---
+
+\clearpage
+
+```{r setup q1, echo=TRUE, results='hide'}
+# load packages
+if(!require(pacman)){install.packages("pacman")}
+
+p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,stargazer)
+```
+
+\section{Question 1:}
+
+\subsection{(i)}
+\emph{I'm not 100$\%$ sure about this one, but here is my answer:}
+
+Suppose the differences in outcomes between the treatment and the control group is:
+\begin{equation} \label{eq_1}
+Y_{g1} - Y_{g0}=(\alpha_1-\alpha_0) + \delta D_g + (U_{g1} - U_{g0}),
+\end{equation}
+in which: $\delta$ is the treatment effect.
+
+The parallel trends assumption state that without the intervention of the treatment $(\delta =0)$, the difference of between the control and treatment group ($\alpha_1-\alpha_0$) remain constant over time. Since in this example, they only look at the pre-treatment period, the parallel trends assumption could be violated due to the fact that after the treatment period, the differences in outcomes of control and treatment groups are not constant over time anymore.
+
+When parallel trend is violated, it means that $\alpha_1-\alpha_0$ changes over time and this means it is no longer to estimate Equation \ref{eq_1} using OLS. If we continue estimating it using OLS, we will have a biased and inconsistent estimator (?). 
+
+One example for violation of this assumption could be that the there exists autocorrelation in the treatment group after getting treated. Specifically, the outcome of the next time lag is influenced by the outcome of the previous lag. Before the treatment previous, both the control and the treatment group have the same time trend because both experience no treatment. However, after receiving the treatment,the treated group has a steeper slope in their outcomes and is no longer parallel to the control group.
+
+\subsection{(ii)}
+The difference-in-difference estimator is an OLS estimator Equation \ref{eq_1}, which can be written in the form below:
+
+\begin{equation} \label{eq_2}
+Y_{g1} - Y_{g0}=\beta_0 + \delta D_g + U_g.
+\end{equation}
+
+The main problem with applying the OLS estimator in this case is that the estimator will be inconsistent. This is because the estimator treats the time trend $\beta_0$ as a constant, however, in this case, the parallel trends assumption is not satisfied and thus $\beta_0$ is not constant. This makes the error term changes over time and is correlated with the treatment variable $D_g$.
+
+MAYBE WE CAN STILL ELABORATE MORE HERE?
+\section{Question 2:}
+```{r}
+dfData = read.csv("assignment5.csv")
+attach(dfData)
+```
+
+\subsection{(i)}
+```{r}
+# Get subgroups and mean per year
+df_scarlet = dfData[dfData$treated==1,]
+mean_scarlet = df_scarlet %>% group_by(year) %>% 
+  summarise(mean_rate=mean(lnm_rate),
+            .groups = 'drop')
+df_tuber = dfData[dfData$treated==0,]
+mean_tuber = df_tuber %>% group_by(year) %>% 
+  summarise(mean_rate=mean(lnm_rate),
+            .groups = 'drop')
+
+# reformat into dataframe
+df_grouped = data.frame(mean_tuber$year,mean_scarlet$mean_rate,mean_tuber$mean_rate)
+names(df_grouped) = c("year","mean_scarlet","mean_tuber")
+
+# Plot
+ggplot() +                    
+  geom_line(data=df_grouped,aes(y=mean_scarlet,x= year,colour="Scarlet"),size=1 )+
+  geom_line(data=df_grouped,aes(y=mean_tuber,x= year,colour="Tuber"),size=1) +
+  scale_color_manual(name = "Disease", values = c("Tuber" = "darkblue", "Scarlet" = "red")) + 
+  geom_vline(xintercept = 1937) #add a vertical line indicating treatment year
+```
+
+\subsection{(ii)}
+
+
+\subsection{(iii)}
+```{r}
+#DiD1 = lm()...
+```
+
+\subsection{(iv)}
+```{r}
+# Create indicator variable
+df_grouped$indicator <- ifelse(df_grouped$year >=1937, 1, 0)
+
+# Get difference of each group
+df_grouped$difference = df_grouped$mean_scarlet -df_grouped$mean_tuber
+
+# Difference-in-difference estimator
+DiD2 = lm(difference ~ indicator, data = df_grouped)
+stargazer(DiD2, type="text")
+```
+
+\subsection{(v)}
+```{r}
+
+
+```
+
+\subsection{(vi)}
+
+
+\subsection{(vii)}
