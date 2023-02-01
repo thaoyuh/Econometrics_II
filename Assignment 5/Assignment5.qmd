@@ -56,7 +56,7 @@ biblio-title: References
 # load packages
 if(!require(pacman)){install.packages("pacman")}
 
-p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,stargazer)
+p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,stargazer, fixest, modelsummary)
 ```
 
 \section{Question 1:}
@@ -117,33 +117,87 @@ ggplot() +
 ```
 
 \subsection{(ii)}
+```{r}
+# get mean effects
+mean_treated_1936 = df_scarlet[df_scarlet$year==1936,] %>% 
+  summarise(mean_rate=mean(lnm_rate),
+            .groups = 'drop')
+mean_treated_1937 = df_scarlet[df_scarlet$year==1937,] %>% 
+  summarise(mean_rate=mean(lnm_rate),
+            .groups = 'drop')
 
+mean_control_1936 = df_tuber[df_tuber$year==1936,] %>% 
+  summarise(mean_rate=mean(lnm_rate),
+            .groups = 'drop')
+mean_control_1937 = df_tuber[df_tuber$year==1937,] %>% 
+  summarise(mean_rate=mean(lnm_rate),
+            .groups = 'drop')
+```
+\begin{table}[]
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+           & Before treatment (1936) & After treatment (1937) & Difference \\ \hline
+Treatment  & -10.96                  & -11.43                 & 0.47       \\ \hline
+Control    & -7.61                   & -7.63                  & 0.02       \\ \hline
+Difference & -3.35                   & -3.8                   & 0.45       \\ \hline
+\end{tabular}
+\end{table}
+
+The difference-in-differences estimator is 0.45
+
+HERE MAYBE I ROUNDED IT TOO MUCH, you should recalculate before rounding to the 3rd or 4th decimal probably. Because I hear others got 0.439, which is 0.44.
 
 \subsection{(iii)}
 ```{r}
-#DiD1 = lm()...
+# Create indicator variable
+dfData$indicator <- ifelse(dfData$year >=1937, 1, 0)
+
+# Get subdata for the year 1936 and 1937
+dfSub = dfData[dfData$year==1936 | dfData$year==1937,]
+
+# DiD model
+DiD1 = feols(lnm_rate ~ indicator*treated|year + treated, data = dfSub, se="standard")
 ```
 
 \subsection{(iv)}
 ```{r}
-# Create indicator variable
-df_grouped$indicator <- ifelse(df_grouped$year >=1937, 1, 0)
 
-# Get difference of each group
-df_grouped$difference = df_grouped$mean_scarlet -df_grouped$mean_tuber
-
-# Difference-in-difference estimator
-DiD2 = lm(difference ~ indicator, data = df_grouped)
-stargazer(DiD2, type="text")
+DiD2= feols(lnm_rate ~ indicator*treated| year + treated, data = dfData, se="standard")
+msummary(list(DiD1,DiD2), stars = c('*' = .1, '**' = .05, '***' = .01))
 ```
 
 \subsection{(v)}
+For this question, we can take out the two-way fixed effect of group and year and create an interaction variable of year and treated group, making the year 1936 the reference year and thus normalize its correficients to 0.
 ```{r}
-
-
+es <- feols(lnm_rate ~ i(year, treated, ref = 1936)|year+treated, data = dfData)
+summary(es)
+coefplot(es)
 ```
 
 \subsection{(vi)}
-
+We need to cluster standard errors at he fixed effect levels: namely year and treated
 
 \subsection{(vii)}
+For this, we can use the Wald test to check to check on the pretrends from the event study model.
+```{r}
+# https://lrberge.github.io/fixest/reference/wald.html
+wald(es, keep="year::[19251926192719281929193019311932193319341935]$")
+```
+
+we can use the placebo test, in which we pick fake treatment periods before the actual treatment period and see if there is a significant effect.
+```{r}
+# Create fake indicator variables
+dfData$D_fake1 <- ifelse(dfData$year >=1928, 1, 0)
+dfData$D_fake2 <- ifelse(dfData$year >=1930, 1, 0)
+dfData$D_fake3 <- ifelse(dfData$year >=1932, 1, 0)
+dfData$D_fake4 <- ifelse(dfData$year >=1934, 1, 0)
+
+# Test fake models
+DiD1_fake = feols(lnm_rate ~ D_fake1*treated|year + treated, data = dfData, cluster = "treated^year")
+DiD2_fake = feols(lnm_rate ~ D_fake2*treated|year + treated, data = dfData, cluster = "treated^year")
+DiD3_fake = feols(lnm_rate ~ D_fake3*treated|year + treated, data = dfData, cluster = "treated^year")
+DiD4_fake = feols(lnm_rate ~ D_fake4*treated|year + treated, data = dfData, cluster = "treated^year")
+msummary(list(DiD1_fake,DiD2_fake,DiD3_fake,DiD4_fake), stars = c('*' = .1, '**' = .05, '***' = .01))
+```
+
