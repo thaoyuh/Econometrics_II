@@ -182,9 +182,9 @@ We need to cluster standard errors at he fixed effect levels: namely year and tr
 For this, we can use the Wald test to check to check on the pretrends from the event study model.
 ```{r}
 # https://lrberge.github.io/fixest/reference/wald.html
-wald(es, keep="year::[19251926192719281929193019311932193319341935]$")
+wald(es, keep=c("year::1925:treated","year::1926:treated","year::1927:treated","year::1928:treated","year::1929:treated","year::1930:treated","year::1931:treated","year::1932:treated","year::1933:treated","year::1934:treated","year::1935:treated"))
 ```
-
+We reject the null, which mean the parallel condition is not satisfied
 we can use the placebo test, in which we pick fake treatment periods before the actual treatment period and see if there is a significant effect.
 ```{r}
 # Create fake indicator variables
@@ -200,4 +200,4 @@ DiD3_fake = feols(lnm_rate ~ D_fake3*treated|year + treated, data = dfData, clus
 DiD4_fake = feols(lnm_rate ~ D_fake4*treated|year + treated, data = dfData, cluster = "treated^year")
 msummary(list(DiD1_fake,DiD2_fake,DiD3_fake,DiD4_fake), stars = c('*' = .1, '**' = .05, '***' = .01))
 ```
-
+Using the placebo test, we also see that the parallel trend pre-treatment period is not satisfied
