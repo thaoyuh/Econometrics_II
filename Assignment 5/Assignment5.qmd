@@ -166,7 +166,7 @@ DiD1 = feols(lnm_rate ~ indicator*treated|year + treated, data = dfSub, se="stan
 DiD2= feols(lnm_rate ~ indicator*treated| year + treated, data = dfData, se="standard")
 msummary(list(DiD1,DiD2), stars = c('*' = .1, '**' = .05, '***' = .01))
 ```
-
+(For (iii) and (iv), I took out the group-specific and time-specific effect. However, if you want to interpret those you can take out the "|year + treated" part in the model specification)
 \subsection{(v)}
 For this question, we can take out the two-way fixed effect of group and year and create an interaction variable of year and treated group, making the year 1936 the reference year and thus normalize its correficients to 0.
 ```{r}
