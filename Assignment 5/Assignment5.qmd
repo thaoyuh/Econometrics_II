@@ -56,43 +56,46 @@ biblio-title: References
 # load packages
 if(!require(pacman)){install.packages("pacman")}
 
-p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,stargazer, fixest, modelsummary)
+p_load(devtools,tidyverse,dplyr,ggplot2,latex2exp,stargazer, fixest, modelsummary, knitr)
 ```
 
 \section{Question 1:}
 
-\subsection{(i)}
-\emph{I'm not 100$\%$ sure about this one, but here is my answer:}
+\subsection{(i)} \label{q1_1}
 
-Suppose the differences in outcomes between the treatment and the control group is:
+Suppose the differences in outcomes between the treatment and the control group is: 
+
 \begin{equation} \label{eq_1}
 Y_{g1} - Y_{g0}=(\alpha_1-\alpha_0) + \delta D_g + (U_{g1} - U_{g0}),
-\end{equation}
-in which: $\delta$ is the treatment effect.
+\end{equation} 
 
-The parallel trends assumption state that without the intervention of the treatment $(\delta =0)$, the difference of between the control and treatment group ($\alpha_1-\alpha_0$) remain constant over time. Since in this example, they only look at the pre-treatment period, the parallel trends assumption could be violated due to the fact that after the treatment period, the differences in outcomes of control and treatment groups are not constant over time anymore.
+\noindent in which: $\delta$ is the estimated treatment effect.
 
-When parallel trend is violated, it means that $\alpha_1-\alpha_0$ changes over time and this means it is no longer to estimate Equation \ref{eq_1} using OLS. If we continue estimating it using OLS, we will have a biased and inconsistent estimator (?). 
+The parallel trends assumption state that without the intervention of the treatment $(\delta =0)$, the difference of between the control and treatment group ($\alpha_1-\alpha_0$) remain constant over time. Since in this example, they only look at the pre-treatment period, the parallel trends assumption could be violated due to the fact that after the treatment period, the differences in outcomes of control and treatment groups are not constant over time anymore unrelated to the treatment.
 
-One example for violation of this assumption could be that the there exists autocorrelation in the treatment group after getting treated. Specifically, the outcome of the next time lag is influenced by the outcome of the previous lag. Before the treatment previous, both the control and the treatment group have the same time trend because both experience no treatment. However, after receiving the treatment,the treated group has a steeper slope in their outcomes and is no longer parallel to the control group.
+When parallel trend is violated, it means that $\alpha_1-\alpha_0$ changes over time and this means it is no longer possible to estimate Equation \ref{eq_1} using OLS. If we continue estimating it using OLS, we will have a biased and inconsistent estimator.
 
-\subsection{(ii)}
+One example for violation of this assumption could be that the there exists autocorrelation in the treatment group after getting treated. Specifically, the outcome of the next time lag is influenced by the outcome of the previous lag. Prior to the treatment, both the control and the treatment group have the same time trend because both experience no treatment. However, after receiving the treatment but not due to this, the treated group has a steeper slope in their outcomes due to autocorrelation and is no longer parallel to the control group. Suppose for example that one wishes to investigate the treatment effects on savings among the poorest income bracket, where treatment is giving them a fixed amount of monthly stipend. However, the pre-treatment period was during a crisis, where the poorest income bracket savings were stagnating. After the treatment, there was a booming economic period, where savings were autocorrelated. Then one group turns out to experience a divergent trend in savings not due to the stipend but simply because the economic situation changed the dependent variable's properties.
+
+\subsection{(ii)} \label{q1_2}
+
 The difference-in-difference estimator is an OLS estimator Equation \ref{eq_1}, which can be written in the form below:
 
 \begin{equation} \label{eq_2}
 Y_{g1} - Y_{g0}=\beta_0 + \delta D_g + U_g.
 \end{equation}
 
-The main problem with applying the OLS estimator in this case is that the estimator will be inconsistent. This is because the estimator treats the time trend $\beta_0$ as a constant, however, in this case, the parallel trends assumption is not satisfied and thus $\beta_0$ is not constant. This makes the error term changes over time and is correlated with the treatment variable $D_g$.
+Now suppose that $Corr(D_g,\beta_0) \neq 0$. The main problem with applying the OLS estimator in this case is that the estimator will be biased and inconsistent due to endogeneity issues. This is because the estimator treats the time trend $\beta_0$ as a constant, however, in this case, the parallel trends assumption is not satisfied and thus $\beta_0$ is not constant. This makes the error term change over time and is correlated with the treatment variable $D_g$. This implies that the treatment was probably not assigned time-group conditional randomly and this causes the endogeneity of the treatment to the error term, which in turn causes the previously mentioned biasedness and inconsistency.
 
-MAYBE WE CAN STILL ELABORATE MORE HERE?
-\section{Question 2:}
+\section{Question 2} \label{q2}
+
 ```{r}
 dfData = read.csv("assignment5.csv")
 attach(dfData)
 ```
 
-\subsection{(i)}
+\subsection{(i)} \label{q2_1}
+
 ```{r}
 # Get subgroups and mean per year
 df_scarlet = dfData[dfData$treated==1,]
@@ -116,39 +119,53 @@ ggplot() +
   geom_vline(xintercept = 1937) #add a vertical line indicating treatment year
 ```
 
-\subsection{(ii)}
+From our graph, we can observe that while both diseases had a relatively slight downwards trend (so at first glance, we may assume parallel trends), the treatment appearance seems to affect the scarlet fever with a strong drop-off in means. This might imply that the drop in the scarlet fever against the tuberculosis is due to the treatment (the appearance of the drug is the treatment for fever but not a treatment for tuberculosis). However, we have to make a lot of assumptions for this to indeed hold true.
+
+\subsection{(ii)} \label{q2_2}
+
 ```{r}
 # get mean effects
-mean_treated_1936 = df_scarlet[df_scarlet$year==1936,] %>% 
+mean_treated_1936 = as.numeric(df_scarlet[df_scarlet$year==1936,] %>% 
   summarise(mean_rate=mean(lnm_rate),
-            .groups = 'drop')
-mean_treated_1937 = df_scarlet[df_scarlet$year==1937,] %>% 
+            .groups = 'drop'))
+mean_treated_1937 = as.numeric(df_scarlet[df_scarlet$year==1937,] %>% 
   summarise(mean_rate=mean(lnm_rate),
-            .groups = 'drop')
+            .groups = 'drop'))
 
-mean_control_1936 = df_tuber[df_tuber$year==1936,] %>% 
+mean_control_1936 = as.numeric(df_tuber[df_tuber$year==1936,] %>% 
   summarise(mean_rate=mean(lnm_rate),
-            .groups = 'drop')
-mean_control_1937 = df_tuber[df_tuber$year==1937,] %>% 
+            .groups = 'drop'))
+mean_control_1937 = as.numeric(df_tuber[df_tuber$year==1937,] %>% 
   summarise(mean_rate=mean(lnm_rate),
-            .groups = 'drop')
+            .groups = 'drop'))
+
+Before_Treatment_1936 <- c(mean_treated_1936, mean_control_1936, (mean_treated_1936-mean_control_1936))
+After_Treatment_1937 <- c(mean_treated_1937, mean_control_1937, (mean_treated_1937-mean_control_1937))
+Difference <- c((mean_treated_1936 - mean_treated_1937), (mean_control_1936 - mean_control_1937), ((mean_treated_1936 - mean_treated_1937) - (mean_control_1936 - mean_control_1937)))
+
+dfTable <- data.frame(Before_Treatment_1936, After_Treatment_1937, Difference)
+rownames(dfTable) <- c("Treatment", "Control", "Difference")
+
+kable(dfTable, caption="Treatment and time differences of treatment and control groups", digits=3, label = "tab_did") 
 ```
-\begin{table}[]
-\centering
-\begin{tabular}{|l|l|l|l|}
-\hline
-           & Before treatment (1936) & After treatment (1937) & Difference \\ \hline
-Treatment  & -10.96                  & -11.43                 & 0.47       \\ \hline
-Control    & -7.61                   & -7.63                  & 0.02       \\ \hline
-Difference & -3.35                   & -3.8                   & 0.45       \\ \hline
-\end{tabular}
-\end{table}
 
-The difference-in-differences estimator is 0.45
+From Table 1, we can see that the difference-in-differences estimator is $0.439$. This DiD estimator is obtained by the differences in means, for treatment group pre-treatment, treatment group post-treatment, control group pre-treatment and control group post-treatment.
 
-HERE MAYBE I ROUNDED IT TOO MUCH, you should recalculate before rounding to the 3rd or 4th decimal probably. Because I hear others got 0.439, which is 0.44.
+```{=tex}
+%\begin{table}[]
+%\centering
+%\begin{tabular}{|l|l|l|l|}
+%\hline
+%           & Before treatment (1936) & After treatment (1937) & Difference \\ \hline
+%Treatment  & -10.96                  & -11.43                 & 0.47       \\ \hline
+%Control    & -7.61                   & -7.63                  & 0.02       \\ \hline
+%Difference & -3.35                   & -3.8                   & 0.45       \\ \hline
+%\end{tabular}
+%\end{table}
+```
 
-\subsection{(iii)}
+\subsection{(iii)} \label{q2_3}
+
 ```{r}
 # Create indicator variable
 dfData$indicator <- ifelse(dfData$year >=1937, 1, 0)
@@ -157,35 +174,44 @@ dfData$indicator <- ifelse(dfData$year >=1937, 1, 0)
 dfSub = dfData[dfData$year==1936 | dfData$year==1937,]
 
 # DiD model
-DiD1 = feols(lnm_rate ~ indicator*treated|year + treated, data = dfSub, se="standard")
+DiD1 = feols(lnm_rate ~ indicator*treated| year + treated, data = dfSub, se="standard")
+summary(DiD1)
 ```
 
-\subsection{(iv)}
-```{r}
+\subsection{(iv)} \label{q2_4}
 
+```{r}
 DiD2= feols(lnm_rate ~ indicator*treated| year + treated, data = dfData, se="standard")
 msummary(list(DiD1,DiD2), stars = c('*' = .1, '**' = .05, '***' = .01))
 ```
-(For (iii) and (iv), I took out the group-specific and time-specific effect. However, if you want to interpret those you can take out the "|year + treated" part in the model specification)
-\subsection{(v)}
+
+(For (iii) and (iv), I took out the group-specific and time-specific effect. However, if you want to interpret those you can take out the "\|year + treated" part in the model specification)
+
+\subsection{(v)} \label{q2_5}
+
 For this question, we can take out the two-way fixed effect of group and year and create an interaction variable of year and treated group, making the year 1936 the reference year and thus normalize its correficients to 0.
+
 ```{r}
 es <- feols(lnm_rate ~ i(year, treated, ref = 1936)|year+treated, data = dfData)
 summary(es)
 coefplot(es)
 ```
 
-\subsection{(vi)}
+\subsection{(vi)} \label{q2_6}
+
 We need to cluster standard errors at he fixed effect levels: namely year and treated
 
-\subsection{(vii)}
-For this, we can use the Wald test to check to check on the pretrends from the event study model.
+\subsection{(vii)} \label{q2_7}
+
+For this, we can use the Wald test to check to check on the pre-trends from the event study model.
+
 ```{r}
 # https://lrberge.github.io/fixest/reference/wald.html
 wald(es, keep=c("year::1925:treated","year::1926:treated","year::1927:treated","year::1928:treated","year::1929:treated","year::1930:treated","year::1931:treated","year::1932:treated","year::1933:treated","year::1934:treated","year::1935:treated"))
 ```
-We reject the null, which mean the parallel condition is not satisfied
-we can use the placebo test, in which we pick fake treatment periods before the actual treatment period and see if there is a significant effect.
+
+We reject the null, which mean the parallel condition is not satisfied we can use the placebo test, in which we pick fake treatment periods before the actual treatment period and see if there is a significant effect.
+
 ```{r}
 # Create fake indicator variables
 dfData$D_fake1 <- ifelse(dfData$year >=1928, 1, 0)
@@ -200,4 +226,5 @@ DiD3_fake = feols(lnm_rate ~ D_fake3*treated|year + treated, data = dfData, clus
 DiD4_fake = feols(lnm_rate ~ D_fake4*treated|year + treated, data = dfData, cluster = "treated^year")
 msummary(list(DiD1_fake,DiD2_fake,DiD3_fake,DiD4_fake), stars = c('*' = .1, '**' = .05, '***' = .01))
 ```
+
 Using the placebo test, we also see that the parallel trend pre-treatment period is not satisfied
