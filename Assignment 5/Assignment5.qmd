@@ -189,12 +189,12 @@ msummary(list(DiD1,DiD2), stars = c('*' = .1, '**' = .05, '***' = .01))
 
 \subsection{(v)} \label{q2_5}
 
-For this question, we can take out the two-way fixed effect of group and year and create an interaction variable of year and treated group, making the year 1936 the reference year and thus normalize its correficients to 0.
+For this question, we can take out the two-way fixed effect of group and year and create an interaction variable of year and treated group, making the year 1936 the reference year and thus normalize its coefficients to 0.
 
 ```{r}
 es <- feols(lnm_rate ~ i(year, treated, ref = 1936)|year+treated, data = dfData)
 summary(es)
-coefplot(es)
+coefplot(es, ylab = "Coefficient")
 ```
 
 \subsection{(vi)} \label{q2_6}
