@@ -211,7 +211,7 @@ We need to cluster standard errors at he fixed effect levels: namely year and tr
 For this, we can use the Wald test to check on the pre-trends from the event study model before the actual treatment period.
 
 ```{r}
-# https://lrberge.github.io/fixest/reference/wald.html
+
 wald(es, keep=c("year::1925:treated","year::1926:treated","year::1927:treated","year::1928:treated","year::1929:treated","year::1930:treated","year::1931:treated","year::1932:treated","year::1933:treated","year::1934:treated","year::1935:treated"))
 ```
 
