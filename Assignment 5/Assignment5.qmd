@@ -213,7 +213,7 @@ DiD3= feols(lnm_rate ~ indicator*treated, data = dfData, se="cluster", cluster=c
 msummary(list(DiD1,DiD2,DiD3), stars = c('*' = .1, '**' = .05, '***' = .01))
 ```
 
-In this 
+In this (3) case, we can see that the interaction effect is close to the previous (2) case in terms of magnitude and significance, but the fixed effects and the clustered standard errors reduce the uncertainty around the estimate. In conclusion, the clustered standard errors reduce the uncertainty but confirm our prior findings in \brefsection{q2_3} and \brefsection{q2_4}.
 
 \subsection{(vii)} \label{q2_7}
 
@@ -221,7 +221,7 @@ For this, we can use the Wald test to check on the pre-trends from the event stu
 
 ```{r}
 
-wald(es, keep=c("year::1925:treated","year::1926:treated","year::1927:treated","year::1928:treated","year::1929:treated","year::1930:treated","year::1931:treated","year::1932:treated","year::1933:treated","year::1934:treated","year::1935:treated"))
+wald(es, keep=c("year::1925:treated", "year::1926:treated", "year::1927:treated", "year::1928:treated", "year::1929:treated", "year::1930:treated", "year::1931:treated", "year::1932:treated", "year::1933:treated", "year::1934:treated", "year::1935:treated"))
 ```
 
 We reject the null hypothesis, which means that there is enough evidence which suggests that the parallel trends condition is not satisfied. This means that the decreasing trend in scarlet fever was stronger anyway compared to the tuberculosis and regardless of the treatment (the appearance of a drug effective for the former but not for the latter). Then we can use the placebo test, in which we pick fake treatment periods before the actual treatment period and see if there is a significant effect. In theory, if the common trends assumption was satisfied, the placebo (fake) treatment should not be significant, only the real treatment effect should yield a significant effect.
