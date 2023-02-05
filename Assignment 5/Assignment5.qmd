@@ -181,6 +181,8 @@ DiD1 = feols(lnm_rate ~ indicator*treated| year + treated, data = dfSub, se="sta
 summary(DiD1)
 ```
 
+We estimated a differences-in-differences model for only a subset of the data for 1936-37 excluding the group and time fixed effects. We also find that the cross-term variable of treatment with the indicator is significant at a 5\% level, suggesting that the post-event mortality rate significantly decreased thanks to the treatment. However, this only looks at $t$ and $t-1$ periods and does not take any other in effect, as well as does not investigate the parallel trends assumption. Hence based on only this regression model, one should be careful to claim that the treatment leads to significant reduction in mortality rates.
+
 \subsection{(iv)} \label{q2_4}
 
 ```{r}
@@ -188,7 +190,7 @@ DiD2= feols(lnm_rate ~ indicator*treated| year + treated, data = dfData, se="sta
 msummary(list(DiD1,DiD2), stars = c('*' = .1, '**' = .05, '***' = .01))
 ```
 
-(For (iii) and (iv), I took out the group-specific and time-specific effect. However, if you want to interpret those you can take out the "\|year + treated" part in the model specification)
+From the second model (2), in comparison with the first (1) from \brefsection{q2_3}, we can observe an even stronger estimated effect of the treatment in a DiD model between before and after the treatment. The coefficient nearly doubles for the entire time horizon estimation, increasing its significance as well. The interpretation of the coefficient means that the treatment decreases the average log mortality of scarlet fever from the pre-treatment period to the post-treatment period by 0.867. This would imply that the appearance of the sulfa drugs helped reducing the log mortality of scarlet fever across states. However, we can also voice the same concerns as before about the parallel trends, namely what if the mortality of scarlet fever has been on a stronger downtrend than tuberculosis prior to the treatment already.
 
 \subsection{(v)} \label{q2_5}
 
@@ -200,11 +202,18 @@ summary(es)
 coefplot(es, ylab = "Coefficient", innerCI=5, outerCI=7, lwdInner=5, lwdOuter=7)
 ```
 
-From the plot we can see that across the groups (states), before the 
+From the plot and the regression results we can see that across the groups (states), before the treatment the scarlet fever mortality was significantly lower in each year (year-treatment cross-term), around 0.2 coefficient before the treatment. However, around and after the treatment year, this effect increased in magnitude, reaching up to -1.5 decrease in log mortality in 1941 compared to tuberculosis.
 
 \subsection{(vi)} \label{q2_6}
 
-We need to cluster standard errors at he fixed effect levels: namely year and treated
+We need to cluster standard errors at the fixed effect levels: namely time and group fixed effects, year and treated variables.
+
+```{r}
+DiD3= feols(lnm_rate ~ indicator*treated, data = dfData, se="cluster", cluster=c("year", "treated"))
+msummary(list(DiD1,DiD2,DiD3), stars = c('*' = .1, '**' = .05, '***' = .01))
+```
+
+In this 
 
 \subsection{(vii)} \label{q2_7}
 
